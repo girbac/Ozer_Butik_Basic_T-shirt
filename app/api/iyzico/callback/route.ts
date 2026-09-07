@@ -4,6 +4,7 @@ import {
   retrieveCheckoutForm,
   verifyRetrieveSignature,
 } from "@/lib/iyzico";
+import { sendOrderConfirmation, sendSellerNotification } from "@/lib/mail";
 import { captureOrder, failOrder } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
 
@@ -79,11 +80,30 @@ export async function POST(request: Request) {
 
   const capture = await captureOrder(order.id, result.paymentId);
 
-  if (capture.outcome === "odendi" && capture.stockWarnings.length > 0) {
-    console.error(
-      `[iyzico callback] ${order.orderNo}: ödeme alındı fakat stok yetersiz —`,
-      capture.stockWarnings.join("; "),
-    );
+  if (capture.outcome === "odendi") {
+    if (capture.stockWarnings.length > 0) {
+      console.error(
+        `[iyzico callback] ${order.orderNo}: ödeme alındı fakat stok yetersiz —`,
+        capture.stockWarnings.join("; "),
+      );
+    }
+
+    // E-postalar yalnızca ilk kesinleştirmede gider (callback tekrar gelirse
+    // "zaten-islenmis" döner ve buraya girilmez), böylece mükerrer e-posta olmaz.
+    const full = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: { items: true },
+    });
+
+    if (full) {
+      // Bilinçli olarak bekliyoruz: Vercel gibi ortamlarda yanıt döndükten sonra
+      // fonksiyon sonlandırılabilir ve "arka plana atılan" gönderim hiç çalışmaz.
+      // Hatalar lib/mail.ts içinde yutulduğu için bu bekleme siparişi riske atmaz.
+      await Promise.allSettled([
+        sendOrderConfirmation(full),
+        sendSellerNotification(full),
+      ]);
+    }
   }
 
   return redirectTo(`/siparis/${order.orderNo}`);
