@@ -169,3 +169,21 @@ export function calculateSubtotal(items: CartItem[]): number {
 export function calculateItemCount(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + item.quantity, 0);
 }
+
+/**
+ * Sepeti sunucunun doğruladığı satırlarla değiştirir (fiyat/stok düzeltmesi sonrası).
+ *
+ * İçerik zaten aynıysa HİÇBİR ŞEY yapmaz — aynı referansı koruyarak React'te
+ * gereksiz render ve sonsuz doğrulama döngüsü oluşmasını engeller.
+ */
+export function replaceCart(items: CartItem[]) {
+  if (serialize(items) === serialize(snapshot)) return;
+  setItems(items.length > 0 ? items : EMPTY);
+}
+
+function serialize(items: CartItem[]): string {
+  return items
+    .map((i) => `${i.variantId}:${i.quantity}:${i.unitPrice}`)
+    .sort()
+    .join("|");
+}
