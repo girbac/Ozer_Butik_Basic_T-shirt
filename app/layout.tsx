@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { CartProvider } from "@/lib/cart";
-import { CartDrawer } from "@/components/CartDrawer";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { getSettings } from "@/lib/settings";
+
+/*
+ * Kök düzen yalnızca html/body ve yazı tipini kuruyor.
+ *
+ * Mağaza başlığı, alt bilgi ve sepet çekmecesi app/(shop)/layout.tsx içinde;
+ * yönetim panelinin kendi düzeni app/admin/layout.tsx içinde. Böylece admin
+ * sayfalarında müşteri arayüzü ve sepet JavaScript'i hiç yüklenmiyor.
+ */
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,19 +41,10 @@ export const viewport: Viewport = {
   themeColor: "#111111",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const settings = await getSettings();
-
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="tr" className={`${inter.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
-        <CartProvider>
-          <Header announcement={settings.announcement} />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <CartDrawer />
-        </CartProvider>
-      </body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { revalidateCart } from "@/app/sepet/actions";
+import { revalidateCart } from "@/lib/actions/cart";
 import { useCart } from "@/lib/cart";
 import { replaceCart } from "@/lib/cart-store";
 import type { PricedCart } from "@/lib/cart-server";
