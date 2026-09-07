@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { getIyzicoUri } from "@/lib/site-url";
 import Iyzipay, {
   type CheckoutFormInitializeRequest,
   type CheckoutFormInitializeResult,
@@ -32,7 +33,7 @@ export function getIyzipayClient(): Iyzipay {
   return new Iyzipay({
     apiKey: requireEnv("IYZIPAY_API_KEY"),
     secretKey: requireEnv("IYZIPAY_SECRET_KEY"),
-    uri: process.env.IYZIPAY_URI ?? "https://sandbox-api.iyzipay.com",
+    uri: getIyzicoUri(),
   });
 }
 

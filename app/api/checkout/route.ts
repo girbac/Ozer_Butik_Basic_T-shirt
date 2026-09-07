@@ -5,6 +5,7 @@ import { initializeCheckoutForm, Iyzipay } from "@/lib/iyzico";
 import { createPendingOrder } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
 import { kurusToIyzicoPrice } from "@/lib/format";
+import { getSiteUrl } from "@/lib/site-url";
 import { checkoutRequestSchema, toInternationalPhone } from "@/lib/validation";
 
 /*
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
   const conversationId = randomUUID();
   const order = await createPendingOrder(customer, cart, conversationId);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const [firstName, ...restOfName] = customer.fullName.split(/\s+/);
   const surname = restOfName.join(" ") || firstName;
 

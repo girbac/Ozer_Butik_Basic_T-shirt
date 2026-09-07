@@ -8,6 +8,7 @@ import {
 import { sendOrderConfirmation, sendSellerNotification } from "@/lib/mail";
 import { captureOrder, failOrder } from "@/lib/orders";
 import { prisma } from "@/lib/prisma";
+import { getSiteUrl } from "@/lib/site-url";
 
 /*
  * iyzico ödeme dönüşü.
@@ -18,11 +19,9 @@ import { prisma } from "@/lib/prisma";
  * her ikisinin de geçmesi gerekir.
  */
 
-const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
 /** iyzico tarayıcıyı POST ile gönderdiği için 303 ile GET'e çeviriyoruz. */
 function redirectTo(path: string) {
-  return NextResponse.redirect(new URL(path, siteUrl()), 303);
+  return NextResponse.redirect(new URL(path, getSiteUrl()), 303);
 }
 
 export async function POST(request: Request) {

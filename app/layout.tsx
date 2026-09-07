@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { getSiteUrl } from "@/lib/site-url";
 
 /*
  * Kök düzen yalnızca html/body ve yazı tipini kuruyor.
@@ -28,10 +29,8 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: "Özer Butik — Basic T-shirt",
     template: "%s · Özer Butik",
