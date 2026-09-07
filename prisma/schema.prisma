@@ -1,0 +1,126 @@
+// Özer Butik — veri modeli
+// Tüm para birimleri KURUŞ cinsinden Int olarak tutulur (ör. 49900 = 499,00 TL).
+// Float kullanılmaz; yuvarlama hatası olmasın diye.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Satılan t-shirt modeli. 5 model için 5 kayıt.
+model Product {
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  name         String
+  tagline      String?
+  description  String
+  fabric       String?
+  careInfo     String?
+  price        Int
+  comparePrice Int?
+  active       Boolean        @default(true)
+  sortOrder    Int            @default(0)
+  variants     Variant[]
+  images       ProductImage[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+/// Renk × beden kombinasyonu. Stok bu seviyede tutulur.
+model Variant {
+  id         String      @id @default(cuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorName  String
+  colorHex   String
+  size       String
+  stock      Int         @default(0)
+  sku        String      @unique
+  orderItems OrderItem[]
+
+  @@unique([productId, colorName, size])
+  @@index([productId])
+}
+
+/// Ürün fotoğrafı. colorName null ise tüm renkler için geçerlidir.
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String
+  colorName String?
+  sortOrder Int     @default(0)
+
+  @@index([productId, sortOrder])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNo         String      @unique
+  status          OrderStatus @default(PENDING)
+  email           String
+  phone           String
+  fullName        String
+  city            String
+  district        String
+  address         String
+  postalCode      String?
+  note            String?
+  subtotal        Int
+  shippingFee     Int
+  total           Int
+  iyzicoToken     String?
+  iyzicoPaymentId String?
+  conversationId  String?     @unique
+  errorMessage    String?
+  trackingCode    String?
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  paidAt          DateTime?
+
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+/// Sipariş satırı. Ürün adı/renk/beden/fiyat sipariş anındaki haliyle kopyalanır,
+/// böylece ürün sonradan değişse bile geçmiş sipariş bozulmaz.
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId   String
+  variant     Variant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  productName String
+  productSlug String
+  colorName   String
+  size        String
+  unitPrice   Int
+  quantity    Int
+
+  @@index([orderId])
+}
+
+/// Admin panelinden düzenlenebilen genel ayarlar (kargo ücreti, duyuru şeridi vb.)
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}

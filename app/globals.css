@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/*
+  Özer Butik tasarım sistemi.
+  Minimal, yüksek kontrast, tek vurgu rengi (siyah). Ürün fotoğrafı sayfanın kahramanı,
+  arayüz geri çekilir. Tailwind v4 CSS-tabanlı tema kullanır (tailwind.config.ts yok).
+*/
+
+@theme {
+  --color-bg: #ffffff;
+  --color-surface: #f6f6f4;
+  --color-ink: #111111;
+  --color-ink-muted: #6b6b6b;
+  --color-line: #e5e5e1;
+  --color-disabled: #b5b5b0;
+  --color-danger: #b3261e;
+  --color-success: #1e7a45;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Bölümler arası dikey boşluk: mobilde 56px, masaüstünde 96px */
+  --spacing-section: 3.5rem;
+  --spacing-section-lg: 6rem;
+
+  --radius-sharp: 2px;
+}
+
+@layer base {
+  html {
+    /* iOS'ta yatay kayma ve input odaklanınca zoom'u engeller */
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    /* Mobilde yatay taşmayı kesin olarak engelle */
+    overflow-x: hidden;
+  }
+
+  /* iOS Safari'de 16px altı font'lu inputlar sayfayı zoom'lar — hepsi en az 16px */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Görünür klavye odağı — erişilebilirlik için zorunlu */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  /* Hareket azaltma tercihi olan kullanıcılar için animasyonları kapat */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Sayfa genişliği sarmalayıcısı — mobilde 16px kenar boşluğu */
+  .container-page {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* Birincil buton: siyah, tam genişlik, mobilde rahat dokunulur (min 48px) */
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding-inline: 1.5rem;
+    background-color: var(--color-ink);
+    color: var(--color-bg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: var(--radius-sharp);
+    transition: opacity 150ms ease;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  .btn-primary:disabled {
+    background-color: var(--color-disabled);
+    cursor: not-allowed;
+  }
+
+  /* İkincil buton: kenarlıklı */
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding-inline: 1.5rem;
+    border: 1px solid var(--color-ink);
+    color: var(--color-ink);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: var(--radius-sharp);
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  /* Yatay kaydırmalı şeritlerde kaydırma çubuğunu gizle (mobil carousel) */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
