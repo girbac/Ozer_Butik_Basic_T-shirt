@@ -36,7 +36,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex min-h-[24px] items-center text-sm text-ink-muted transition-colors hover:text-ink"
+                    className="inline-flex min-h-11 items-center text-sm text-ink-muted transition-colors hover:text-ink sm:min-h-[28px]"
                   >
                     {link.label}
                   </Link>
@@ -54,7 +54,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex min-h-[24px] items-center text-sm text-ink-muted transition-colors hover:text-ink"
+                    className="inline-flex min-h-11 items-center text-sm text-ink-muted transition-colors hover:text-ink sm:min-h-[28px]"
                   >
                     {link.label}
                   </Link>

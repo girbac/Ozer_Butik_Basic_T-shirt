@@ -47,7 +47,7 @@ export function ProductDetailView({
   const [isStickyBarVisible, setStickyBarVisible] = useState(false);
 
   const sizeSectionRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const buyButtonsRef = useRef<HTMLDivElement>(null);
 
   const color = product.colors[colorIndex];
   const selectedSize = useMemo(
@@ -69,13 +69,18 @@ export function ProductDetailView({
     window.history.replaceState(null, "", url.toString());
   }, [color, colorIndex]);
 
-  // Mobilde satın alma paneli ekrandan çıkınca sabit alt bar belirsin.
+  /*
+   * Mobilde sabit alt bar, asıl "Sepete Ekle" butonu ekrandan çıkınca belirir.
+   * Panelin tamamını gözlemlemek yanlış olurdu: akordiyonlar açıkken panel hâlâ
+   * ekranda sayılırken buton çoktan yukarıda kalmış oluyor ve kullanıcı ortada
+   * satın alma butonu olmadan kalıyordu.
+   */
   useEffect(() => {
-    const target = panelRef.current;
+    const target = buyButtonsRef.current;
     if (!target) return;
     const observer = new IntersectionObserver(
       ([entry]) => setStickyBarVisible(!entry.isIntersecting),
-      { rootMargin: "-80px 0px 0px 0px" },
+      { rootMargin: "-64px 0px 0px 0px" },
     );
     observer.observe(target);
     return () => observer.disconnect();
@@ -138,7 +143,7 @@ export function ProductDetailView({
             />
           </div>
 
-          <div ref={panelRef} className="min-w-0 md:sticky md:top-24 md:self-start">
+          <div className="min-w-0 md:sticky md:top-24 md:self-start">
             <h1 className="text-2xl font-medium tracking-tight md:text-[28px]">{product.name}</h1>
             {product.tagline && (
               <p className="mt-1.5 text-sm text-ink-muted">{product.tagline}</p>
@@ -189,10 +194,11 @@ export function ProductDetailView({
             <div ref={sizeSectionRef} className="mt-7">
               <div className="flex items-baseline justify-between">
                 <span className="text-xs font-medium uppercase tracking-widest">Beden</span>
+                {/* -my-3 py-3: yazı boyutu aynı kalırken dokunma alanı 44px'e çıkıyor */}
                 <button
                   type="button"
                   onClick={() => setSizeGuideOpen(true)}
-                  className="text-xs text-ink-muted underline underline-offset-2 hover:text-ink"
+                  className="-my-3 py-3 text-xs text-ink-muted underline underline-offset-2 hover:text-ink"
                 >
                   Beden tablosu
                 </button>
@@ -276,7 +282,7 @@ export function ProductDetailView({
             </div>
 
             {/* Satın alma butonları */}
-            <div className="mt-6 space-y-2.5">
+            <div ref={buyButtonsRef} className="mt-6 space-y-2.5">
               <button
                 type="button"
                 onClick={handleAddToCart}

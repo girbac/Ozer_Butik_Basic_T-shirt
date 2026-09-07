@@ -40,6 +40,41 @@ npm run dev
 | `npm run db:seed` | Örnek ürünleri yükler (siparişi olan ürüne dokunmaz) |
 | `npm run db:studio` | Veritabanını tarayıcıda görüntüler |
 | `npm run images:placeholder` | Geçici ürün görsellerini yeniden üretir |
+| `npm test` | Testleri çalıştırır (veritabanı gerekir) |
+
+## Neler var
+
+| Bölüm | Adres |
+|---|---|
+| Vitrin | `/` |
+| Ürün sayfası | `/urun/[slug]` |
+| Sepet | `/sepet` |
+| Ödeme (misafir checkout) | `/odeme` |
+| Sipariş sonucu | `/siparis/[siparisNo]` |
+| Yönetim paneli | `/admin` |
+| Yasal sayfalar | `/mesafeli-satis`, `/on-bilgilendirme`, `/iptal-ve-iade`, `/kargo-ve-teslimat`, `/gizlilik`, `/cerez-politikasi` |
+
+## Ödeme akışı
+
+1. `POST /api/checkout` — sepet **sunucuda yeniden fiyatlandırılır**, sipariş
+   `PENDING` olarak kaydedilir, iyzico Checkout Form başlatılır
+2. Kullanıcı iyzico'nun 3D Secure sayfasına yönlenir
+3. `POST /api/iyzico/callback` — token ile iyzico'ya sorulur, dönen sonucun
+   **imzası HMAC-SHA256 ile doğrulanır**; ancak ikisi de geçerse ödeme kabul edilir
+4. Stok tek transaction içinde düşülür, sipariş `PAID` olur, e-postalar gider
+
+Stok sipariş oluşturulurken değil, **ödeme onaylandığında** düşülür — başarısız
+ödeme stoğu boşuna kilitlemesin diye.
+
+## Testler
+
+`npm test` — 28 test, `node:test` ile. Kapsam:
+
+- stok düşme, idempotency (aynı callback iki kez), eşzamanlı callback
+- stok yetersizliği (eksiye düşmüyor), başarısız ödeme
+- iyzico imza doğrulaması (tutar ve ödeme durumu kurcalama denemeleri dahil)
+- yönetim oturumu jetonu (süre uzatma ve sahte imza denemeleri)
+- tutar biçimlendirme ve telefon normalizasyonu
 
 ## Önemli notlar
 
@@ -50,6 +85,13 @@ npm run dev
 - **Ürün görselleri şu an yer tutucudur** (`public/urunler/`). Gerçek fotoğraflar
   admin panelinden yüklenecek.
 - Ürün adları, fiyatlar ve renkler de yer tutucudur; `prisma/seed.ts` içinde.
+- **Yasal bilgiler `lib/store-info.ts` içinde tek yerde.** Doldurulmadığı sürece
+  yasal sayfaların ve yönetim panelinin üstünde kırmızı uyarı görünür.
+- Mobil öncelikli: vitrin telefonda 2 sütun, ürün sayfasında sayfa kaydırılınca
+  sabit alt satın alma barı devreye girer.
+- iyzico'ya giden dış ağ erişimi olmadığı için **uçtan uca sandbox ödemesi henüz
+  test edilmedi.** Sandbox anahtarları girildikten sonra ilk gerçek ödemenin
+  denenmesi gerekiyor.
 
 ## Yapılacaklar (canlıya çıkmadan önce)
 

@@ -134,7 +134,7 @@ export function CartDrawer() {
                     <button
                       type="button"
                       onClick={() => removeItem(item.variantId)}
-                      className="mt-2 self-start text-xs text-ink-muted underline underline-offset-2 transition-colors hover:text-danger"
+                      className="-mb-2 self-start py-2 text-xs text-ink-muted underline underline-offset-2 transition-colors hover:text-danger"
                     >
                       Kaldır
                     </button>

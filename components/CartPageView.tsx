@@ -180,7 +180,7 @@ export function CartPageView() {
                   <button
                     type="button"
                     onClick={() => removeItem(line.variantId)}
-                    className="text-xs text-ink-muted underline underline-offset-2 transition-colors hover:text-danger"
+                    className="-my-2.5 py-2.5 text-xs text-ink-muted underline underline-offset-2 transition-colors hover:text-danger"
                   >
                     Kaldır
                   </button>
