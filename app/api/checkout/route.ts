@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { priceCart } from "@/lib/cart-server";
 import { initializeCheckoutForm, Iyzipay } from "@/lib/iyzico";
 import { createPendingOrder } from "@/lib/orders";
-import { prisma } from "@/lib/prisma";
+import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 import { kurusToIyzicoPrice } from "@/lib/format";
 import { getSiteUrl } from "@/lib/site-url";
 import { checkoutRequestSchema, toInternationalPhone } from "@/lib/validation";
@@ -29,6 +29,17 @@ function getClientIp(request: Request): string {
 }
 
 export async function POST(request: Request) {
+  // Demo modunda sipariş kaydedilecek bir yer yok; kullanıcıyı ödemeye göndermeyelim.
+  if (!isDatabaseConfigured()) {
+    return NextResponse.json(
+      {
+        error:
+          "Mağaza şu anda demo görünümünde, sipariş alınamıyor. Veritabanı bağlandığında ödeme aktif olacak.",
+      },
+      { status: 503 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();

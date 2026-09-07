@@ -14,119 +14,20 @@
  */
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
+import {
+  COLORS,
+  DEFAULT_STOCK,
+  PRODUCTS,
+  SIZES,
+  VIEWS,
+  buildSku,
+  imageAlt,
+  imageUrl,
+} from "../lib/catalog-data";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
 });
-
-const SIZES = ["S", "M", "L", "XL", "XXL"] as const;
-
-/** Renk paleti — public/urunler/<slug>-<görünüm>.webp dosyalarıyla eşleşir. */
-const COLORS = {
-  siyah: { name: "Siyah", hex: "#1a1815" },
-  beyaz: { name: "Beyaz", hex: "#fdfcfa" },
-  gri: { name: "Gri", hex: "#9b968e" },
-  lacivert: { name: "Lacivert", hex: "#232d45" },
-  bej: { name: "Bej", hex: "#d8cbb4" },
-  haki: { name: "Haki", hex: "#4d5340" },
-  antrasit: { name: "Antrasit", hex: "#3a3835" },
-} as const;
-
-type ColorSlug = keyof typeof COLORS;
-
-type SeedProduct = {
-  slug: string;
-  name: string;
-  tagline: string;
-  description: string;
-  fabric: string;
-  careInfo: string;
-  price: number;
-  comparePrice?: number;
-  sortOrder: number;
-  colors: ColorSlug[];
-  /** Beden bazında stok. Belirtilmeyen beden için varsayılan kullanılır. */
-  stockOverrides?: Record<string, number>;
-};
-
-const PRODUCTS: SeedProduct[] = [
-  {
-    slug: "regular-fit-basic-tee",
-    name: "Regular Fit Basic Tee",
-    tagline: "Ne dar ne bol — her güne uyan klasik kalıp.",
-    description:
-      "Günlük kullanım için tasarlanmış, vücudu sarmayan klasik kalıp. Omuz dikişi tam omuz hizasında oturur, kol boyu dirseğin üzerinde biter. Yıkamada çekme yapmaması için kumaş ön işlemden geçirilmiştir.",
-    fabric: "%100 penye pamuk · 190 g/m² · Bisiklet yaka",
-    careInfo:
-      "30°C'de tersten yıkayın. Çamaşır suyu kullanmayın. Düşük ısıda ütüleyin. Kurutma makinesinde kurutmayın.",
-    price: 49900,
-    sortOrder: 1,
-    colors: ["siyah", "beyaz", "gri", "lacivert"],
-    stockOverrides: { XXL: 0 },
-  },
-  {
-    slug: "oversize-basic-tee",
-    name: "Oversize Basic Tee",
-    tagline: "Düşük omuz, geniş kalıp, rahat duruş.",
-    description:
-      "Omuz dikişi kolun üzerine düşer, gövde bol keser. Bir beden küçük almanız gerekmez — normal bedeninizi seçin. Boyu kalçayı kapatacak uzunluktadır.",
-    fabric: "%100 penye pamuk · 220 g/m² · Düşük omuz, bisiklet yaka",
-    careInfo:
-      "30°C'de tersten yıkayın. Çamaşır suyu kullanmayın. Düşük ısıda ütüleyin. Kurutma makinesinde kurutmayın.",
-    price: 59900,
-    sortOrder: 2,
-    colors: ["siyah", "beyaz", "bej", "haki"],
-  },
-  {
-    slug: "slim-fit-basic-tee",
-    name: "Slim Fit Basic Tee",
-    tagline: "Vücuda oturan dar kalıp.",
-    description:
-      "Bel hizasında daralan, vücut hatlarını takip eden kalıp. Ceket altında kullanmak için idealdir. Aranızda kaldıysa bir üst bedeni tercih edin.",
-    fabric: "%95 pamuk %5 elastan · 180 g/m² · Bisiklet yaka",
-    careInfo:
-      "30°C'de tersten yıkayın. Çamaşır suyu kullanmayın. Düşük ısıda ütüleyin. Kurutma makinesinde kurutmayın.",
-    price: 49900,
-    sortOrder: 3,
-    colors: ["siyah", "beyaz", "antrasit"],
-    stockOverrides: { S: 2 },
-  },
-  {
-    slug: "v-yaka-basic-tee",
-    name: "V Yaka Basic Tee",
-    tagline: "Yumuşak dokulu, sade V yaka.",
-    description:
-      "Boynu açık bırakan orta derinlikte V yaka. Yaka bandı esnekliğini kaybetmemesi için çift dikişle takviye edilmiştir. Regular Fit kalıpla aynı ölçülerdedir.",
-    fabric: "%100 penye pamuk · 185 g/m² · V yaka",
-    careInfo:
-      "30°C'de tersten yıkayın. Çamaşır suyu kullanmayın. Düşük ısıda ütüleyin. Kurutma makinesinde kurutmayın.",
-    price: 47900,
-    sortOrder: 4,
-    colors: ["siyah", "beyaz", "gri"],
-  },
-  {
-    slug: "agir-gramaj-basic-tee",
-    name: "Ağır Gramaj Basic Tee",
-    tagline: "Kalın kumaş, dik duruş, uzun ömür.",
-    description:
-      "240 g/m² kumaşıyla koleksiyonun en kalın modeli. Işığa tutulduğunda içini göstermez, yıkandıkça formunu korur. Yaka ve etek ucu ekstra takviyelidir.",
-    fabric: "%100 taranmış pamuk · 240 g/m² · Bisiklet yaka, takviyeli",
-    careInfo:
-      "30°C'de tersten yıkayın. Çamaşır suyu kullanmayın. Orta ısıda ütüleyin. Kurutma makinesinde kurutmayın.",
-    price: 69900,
-    comparePrice: 79900,
-    sortOrder: 5,
-    colors: ["siyah", "beyaz", "lacivert", "haki"],
-  },
-];
-
-const DEFAULT_STOCK = 12;
-
-/** SKU: OB-REG-SIYAH-M gibi okunabilir ve benzersiz. */
-function buildSku(productSlug: string, colorSlug: string, size: string) {
-  const productCode = productSlug.split("-")[0].slice(0, 6).toUpperCase();
-  return `OB-${productCode}-${colorSlug.toUpperCase()}-${size}`;
-}
 
 async function main() {
   // Yayın sırasında yalnızca boş katalogda çalışsın diye
@@ -185,11 +86,9 @@ async function main() {
         },
         images: {
           create: item.colors.flatMap((colorSlug, colorIndex) =>
-            (["on", "arka", "detay"] as const).map((view, viewIndex) => ({
-              url: `/urunler/${colorSlug}-${view}.webp`,
-              alt: `${item.name} — ${COLORS[colorSlug].name} (${
-                view === "on" ? "önden" : view === "arka" ? "arkadan" : "kumaş detayı"
-              })`,
+            VIEWS.map((view, viewIndex) => ({
+              url: imageUrl(colorSlug, view),
+              alt: imageAlt(item.name, colorSlug, view),
               colorName: COLORS[colorSlug].name,
               sortOrder: colorIndex * 10 + viewIndex,
             })),

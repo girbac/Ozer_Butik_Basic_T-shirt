@@ -10,8 +10,8 @@
  * ezilirdi.
  *
  * DATABASE_URL tanımlı değilse (ör. veritabanı henüz bağlanmamış yeni bir
- * Vercel projesi) hata vermeden çıkar — derleme yine de tamamlanır ve site
- * kurulum yönergesi gösterir.
+ * Vercel projesi) hata vermeden çıkar — derleme tamamlanır ve site demo
+ * görünümünde açılır: beş model görünür, sipariş alınmaz.
  */
 import { execFileSync } from "node:child_process";
 
@@ -22,7 +22,8 @@ function run(command, args) {
 if (!process.env.DATABASE_URL) {
   console.warn(
     "[prepare-deploy] DATABASE_URL tanımlı değil — migration ve seed atlandı.\n" +
-      "[prepare-deploy] Site derlenecek ancak veritabanı bağlanana kadar kurulum ekranı gösterecek.",
+      "[prepare-deploy] Site DEMO görünümünde açılacak: ürünler görünür, sipariş alınmaz.\n" +
+      "[prepare-deploy] Gerçek mağaza için Vercel'de Storage → Postgres bağlayıp yeniden dağıtın.",
   );
   process.exit(0);
 }

@@ -136,8 +136,15 @@ Proje GitHub deposuna bağlıdır; production dalına her push otomatik yayına 
    - `NEXT_PUBLIC_SITE_URL` — alan adınız (iyzico ödeme dönüşü buraya yapılır)
 3. **Deployments → Redeploy**
 
-Bunlar tanımlanana kadar site açılır ama ana sayfada kurulum yönergesi gösterir;
-derleme başarısız olmaz.
+**Veritabanı bağlanmadan da site çalışır.** Bu durumda "demo görünümü" devreye
+girer: beş model, renkleri ve bedenleriyle görünür, sepet çalışır — ama üstte
+uyarı şeridi çıkar ve sipariş alınmaz. Böylece tasarımı veritabanı kurmadan
+inceleyebilirsiniz.
+
+Demo verisi `lib/catalog-data.ts` içindeki yer tutucularla aynıdır; veritabanı
+bağlandığında birebir aynı beş model gelir. Demo görünümü yalnızca `DATABASE_URL`
+HİÇ tanımlı değilken devreye girer — tanımlı ama erişilemiyorsa hata normal
+şekilde yükselir, bir arıza sessizce demo veriyle maskelenmez.
 
 Yayın sırasında `scripts/prepare-deploy.mjs` çalışır: bekleyen migration'ları
 uygular ve **yalnızca katalog tamamen boşsa** örnek ürünleri yükler. Dolu bir

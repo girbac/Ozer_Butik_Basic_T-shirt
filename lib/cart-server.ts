@@ -1,6 +1,7 @@
 import "server-only";
 
-import { prisma } from "@/lib/prisma";
+import { isDatabaseConfigured, prisma } from "@/lib/prisma";
+import { getDemoProducts } from "@/lib/demo-catalog";
 import { calculateShipping, getSettings, type StoreSettings } from "@/lib/settings";
 import { MAX_QUANTITY_PER_ITEM } from "@/lib/cart-store";
 
@@ -68,6 +69,12 @@ export async function priceCart(input: CartLineInput[]): Promise<PricedCart> {
 
   if (requested.size === 0) {
     return { lines: [], issues: [], subtotal: 0, shippingFee: 0, total: 0, settings };
+  }
+
+  // Demo modunda veritabanı yok; sepet tanıtım kataloğuna göre fiyatlandırılır.
+  // Ödeme zaten engelli (bkz. /api/checkout), bu yalnızca sepetin görünmesi için.
+  if (!isDatabaseConfigured()) {
+    return priceFromDemoCatalog(requested, settings);
   }
 
   const variants = await prisma.variant.findMany({
@@ -150,4 +157,40 @@ export async function priceCart(input: CartLineInput[]): Promise<PricedCart> {
     total: subtotal + shippingFee,
     settings,
   };
+}
+
+/** Demo modunda sepet fiyatlandırması. Yalnızca gösterim amaçlıdır. */
+function priceFromDemoCatalog(
+  requested: Map<string, number>,
+  settings: StoreSettings,
+): PricedCart {
+  const lines: PricedLine[] = [];
+
+  for (const product of getDemoProducts()) {
+    for (const color of product.colors) {
+      for (const size of color.sizes) {
+        const quantity = requested.get(size.variantId);
+        if (!quantity || size.stock <= 0) continue;
+
+        const capped = Math.min(quantity, size.stock, MAX_QUANTITY_PER_ITEM);
+        lines.push({
+          variantId: size.variantId,
+          productId: product.id,
+          productName: product.name,
+          productSlug: product.slug,
+          colorName: color.name,
+          size: size.size,
+          unitPrice: product.price,
+          quantity: capped,
+          lineTotal: product.price * capped,
+          image: color.images[0]?.url ?? null,
+        });
+      }
+    }
+  }
+
+  const subtotal = lines.reduce((sum, line) => sum + line.lineTotal, 0);
+  const shippingFee = calculateShipping(subtotal, settings);
+
+  return { lines, issues: [], subtotal, shippingFee, total: subtotal + shippingFee, settings };
 }

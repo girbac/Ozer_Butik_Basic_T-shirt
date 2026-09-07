@@ -3,6 +3,8 @@ import { CartDrawer } from "@/components/CartDrawer";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { getSettings } from "@/lib/settings";
+import { isDatabaseConfigured } from "@/lib/prisma";
+import { DemoBanner } from "@/components/DemoBanner";
 
 /** Müşteriye görünen tüm sayfaların ortak çerçevesi. */
 export default async function ShopLayout({ children }: LayoutProps<"/">) {
@@ -10,6 +12,7 @@ export default async function ShopLayout({ children }: LayoutProps<"/">) {
 
   return (
     <CartProvider>
+      {!isDatabaseConfigured() && <DemoBanner />}
       <Header announcement={settings.announcement} />
       <main className="flex-1">{children}</main>
       <Footer />

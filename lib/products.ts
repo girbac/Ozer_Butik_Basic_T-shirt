@@ -1,4 +1,5 @@
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
+import { getDemoProductBySlug, getDemoProducts, getDemoSlugs } from "@/lib/demo-catalog";
 import { sortSizes } from "@/lib/sizes";
 
 export type SizeOption = {
@@ -100,7 +101,8 @@ function groupByColor(product: ProductRow): ColorOption[] {
 }
 
 export async function getActiveProducts(): Promise<ProductCardData[]> {
-  if (!isDatabaseConfigured()) return [];
+  // Veritabanı bağlanmadan da tasarımın tamamı görülebilsin diye tanıtım kataloğu
+  if (!isDatabaseConfigured()) return getDemoProducts();
 
   const products = await prisma.product.findMany({
     where: { active: true },
@@ -120,7 +122,7 @@ export async function getActiveProducts(): Promise<ProductCardData[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
-  if (!isDatabaseConfigured()) return null;
+  if (!isDatabaseConfigured()) return getDemoProductBySlug(slug);
 
   const product = await prisma.product.findFirst({
     where: { slug, active: true },
@@ -150,7 +152,7 @@ export async function getOtherProducts(excludeSlug: string): Promise<ProductCard
 }
 
 export async function getProductSlugs(): Promise<string[]> {
-  if (!isDatabaseConfigured()) return [];
+  if (!isDatabaseConfigured()) return getDemoSlugs();
 
   const products = await prisma.product.findMany({
     where: { active: true },
