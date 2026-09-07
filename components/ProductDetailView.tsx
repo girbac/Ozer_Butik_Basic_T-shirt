@@ -144,7 +144,7 @@ export function ProductDetailView({
           </div>
 
           <div className="min-w-0 md:sticky md:top-24 md:self-start">
-            <h1 className="text-2xl font-medium tracking-tight md:text-[28px]">{product.name}</h1>
+            <h1 className="display text-[28px] leading-tight md:text-[34px]">{product.name}</h1>
             {product.tagline && (
               <p className="mt-1.5 text-sm text-ink-muted">{product.tagline}</p>
             )}
@@ -164,7 +164,7 @@ export function ProductDetailView({
             {product.colors.length > 0 && (
               <div className="mt-7">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-xs font-medium uppercase tracking-widest">Renk</span>
+                  <span className="label-caps">Renk</span>
                   <span className="text-sm text-ink-muted">{color?.name}</span>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Renk seçimi">
@@ -176,8 +176,10 @@ export function ProductDetailView({
                       aria-pressed={index === colorIndex}
                       aria-label={option.name}
                       title={option.name}
-                      className={`h-11 w-11 rounded-full border p-1 transition-colors ${
-                        index === colorIndex ? "border-ink" : "border-transparent hover:border-line"
+                      className={`h-11 w-11 rounded-full border-2 p-1 transition-colors ${
+                        index === colorIndex
+                          ? "border-accent"
+                          : "border-transparent hover:border-line"
                       }`}
                     >
                       <span
@@ -193,12 +195,12 @@ export function ProductDetailView({
             {/* Beden seçimi */}
             <div ref={sizeSectionRef} className="mt-7">
               <div className="flex items-baseline justify-between">
-                <span className="text-xs font-medium uppercase tracking-widest">Beden</span>
+                <span className="label-caps">Beden</span>
                 {/* -my-3 py-3: yazı boyutu aynı kalırken dokunma alanı 44px'e çıkıyor */}
                 <button
                   type="button"
                   onClick={() => setSizeGuideOpen(true)}
-                  className="-my-3 py-3 text-xs text-ink-muted underline underline-offset-2 hover:text-ink"
+                  className="link-quiet -my-3 py-3 text-xs text-ink-muted"
                 >
                   Beden tablosu
                 </button>
@@ -243,7 +245,11 @@ export function ProductDetailView({
               )}
 
               {selectedSize && selectedSize.stock <= LOW_STOCK_THRESHOLD && (
-                <p className="mt-2 text-xs text-danger">Son {selectedSize.stock} adet.</p>
+                /* Stok azlığı bir hata değil, bu yüzden danger değil accent kullanıyor */
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-accent">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
+                  Son {selectedSize.stock} adet
+                </p>
               )}
 
               {isColorSoldOut && (
@@ -255,7 +261,7 @@ export function ProductDetailView({
 
             {/* Adet */}
             <div className="mt-6 flex items-center gap-4">
-              <span className="text-xs font-medium uppercase tracking-widest">Adet</span>
+              <span className="label-caps">Adet</span>
               <div className="flex items-center border border-line">
                 <button
                   type="button"
@@ -304,19 +310,19 @@ export function ProductDetailView({
             {/* Güven satırları — butonun hemen altında olması dönüşüm için kritik */}
             <ul className="mt-6 space-y-2.5 text-sm text-ink-muted">
               <li className="flex items-start gap-2.5">
-                <TruckIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                <TruckIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <span>16:00&apos;a kadar verilen siparişler aynı gün kargoda</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <span>{formatPrice(freeShippingThreshold)} üzeri ücretsiz kargo</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <ReturnIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                <ReturnIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <span>14 gün içinde koşulsuz iade</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <LockIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                <LockIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <span>iyzico ile 3D Secure güvenli ödeme</span>
               </li>
             </ul>
@@ -343,7 +349,7 @@ export function ProductDetailView({
                 <p className="mt-3">
                   Ürünü teslim aldıktan sonra 14 gün içinde, kullanılmamış ve etiketi
                   sökülmemiş olması şartıyla iade edebilirsiniz. Ayrıntılar için{" "}
-                  <a href="/iptal-ve-iade" className="underline underline-offset-2">
+                  <a href="/iptal-ve-iade" className="link-quiet">
                     İptal ve İade Koşulları
                   </a>{" "}
                   sayfasına bakın.

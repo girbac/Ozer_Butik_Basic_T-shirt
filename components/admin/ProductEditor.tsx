@@ -62,7 +62,7 @@ export function ProductEditor({
       >
         <span className="min-w-0">
           <span className="flex flex-wrap items-center gap-2">
-            <span className="font-medium">{product.name}</span>
+            <span className="display text-base">{product.name}</span>
             {!product.active && (
               <span className="bg-surface px-2 py-0.5 text-[11px] uppercase tracking-wide text-ink-muted">
                 Yayında değil
@@ -120,7 +120,7 @@ export function ProductEditor({
                 type="checkbox"
                 name="active"
                 defaultChecked={product.active}
-                className="h-5 w-5 accent-[#111111]"
+                className="h-5 w-5 accent-[#a2543a]"
               />
               <span className="text-sm">Mağazada yayında</span>
             </label>
@@ -143,14 +143,14 @@ export function ProductEditor({
               <Link
                 href={`/urun/${product.slug}`}
                 target="_blank"
-                className="text-sm text-ink-muted underline underline-offset-2 hover:text-ink"
+                className="link-quiet text-sm text-ink-muted"
               >
                 Mağazada gör
               </Link>
             </div>
           </form>
 
-          <h3 className="mt-8 text-xs font-medium uppercase tracking-widest">Stok</h3>
+          <h3 className="label-caps mt-8">Stok</h3>
           <p className="mt-1 text-xs text-ink-muted">
             Adedi değiştirdiğinizde otomatik kaydedilir.
           </p>

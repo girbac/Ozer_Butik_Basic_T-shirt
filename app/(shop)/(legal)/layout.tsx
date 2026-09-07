@@ -24,19 +24,19 @@ export default function LegalLayout({ children }: LayoutProps<"/">) {
 
         <article
           className="
-            [&_h1]:text-2xl [&_h1]:font-medium [&_h1]:tracking-tight [&_h1]:md:text-3xl
-            [&_h2]:mt-10 [&_h2]:text-base [&_h2]:font-medium [&_h2]:md:text-lg
+            [&_h1]:font-[family-name:var(--font-display)] [&_h1]:text-3xl [&_h1]:font-normal [&_h1]:tracking-[-0.015em] [&_h1]:md:text-4xl
+            [&_h2]:mt-10 [&_h2]:font-[family-name:var(--font-display)] [&_h2]:text-xl [&_h2]:font-normal [&_h2]:md:text-2xl
             [&_h3]:mt-6 [&_h3]:text-sm [&_h3]:font-medium
             [&_p]:mt-4 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-ink-muted
             [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5
             [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-5
             [&_li]:text-sm [&_li]:leading-relaxed [&_li]:text-ink-muted
-            [&_a]:text-ink [&_a]:underline [&_a]:underline-offset-2
+            [&_a]:text-ink [&_a]:underline [&_a]:underline-offset-[3px] [&_a]:decoration-line hover:[&_a]:text-accent hover:[&_a]:decoration-accent
             [&_dl]:mt-4 [&_dt]:mt-3 [&_dt]:text-sm [&_dt]:font-medium
             [&_dd]:text-sm [&_dd]:leading-relaxed [&_dd]:text-ink-muted
             [&_table]:mt-4 [&_table]:w-full [&_table]:text-sm
             [&_td]:border-b [&_td]:border-line [&_td]:py-2.5 [&_td]:align-top
-            [&_th]:border-b [&_th]:border-line [&_th]:py-2.5 [&_th]:text-left [&_th]:font-medium
+            [&_th]:border-b [&_th]:border-ink [&_th]:py-2.5 [&_th]:text-left [&_th]:font-medium
           "
         >
           {children}

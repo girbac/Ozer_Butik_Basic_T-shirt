@@ -21,14 +21,14 @@ export function Footer() {
       <div className="container-page py-10 md:py-14">
         <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
           <div className="sm:col-span-2 md:col-span-1">
-            <p className="text-sm font-semibold tracking-[0.2em]">ÖZER BUTİK</p>
+            <p className="text-sm font-semibold tracking-[0.18em]">ÖZER BUTİK</p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-muted">
               Beş model basic t-shirt. Fazlası yok, eksiği yok.
             </p>
           </div>
 
           <nav aria-labelledby="footer-shop">
-            <h2 id="footer-shop" className="text-xs font-medium uppercase tracking-widest">
+            <h2 id="footer-shop" className="label-caps">
               Mağaza
             </h2>
             <ul className="mt-4 space-y-3">
@@ -36,7 +36,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex min-h-11 items-center text-sm text-ink-muted transition-colors hover:text-ink sm:min-h-[28px]"
+                    className="inline-flex min-h-11 items-center text-sm text-ink-muted transition-colors hover:text-accent sm:min-h-[28px]"
                   >
                     {link.label}
                   </Link>
@@ -46,7 +46,7 @@ export function Footer() {
           </nav>
 
           <nav aria-labelledby="footer-legal" className="sm:col-span-1 md:col-span-2">
-            <h2 id="footer-legal" className="text-xs font-medium uppercase tracking-widest">
+            <h2 id="footer-legal" className="label-caps">
               Yasal
             </h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -54,7 +54,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="inline-flex min-h-11 items-center text-sm text-ink-muted transition-colors hover:text-ink sm:min-h-[28px]"
+                    className="inline-flex min-h-11 items-center text-sm text-ink-muted transition-colors hover:text-accent sm:min-h-[28px]"
                   >
                     {link.label}
                   </Link>

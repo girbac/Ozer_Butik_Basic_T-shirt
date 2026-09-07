@@ -23,10 +23,10 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-surface text-ink-muted",
-  PAID: "bg-success/10 text-success",
-  FAILED: "bg-danger/10 text-danger",
-  SHIPPED: "bg-ink text-bg",
-  DELIVERED: "bg-ink/10 text-ink",
+  PAID: "bg-success/12 text-success",
+  FAILED: "bg-danger/12 text-danger",
+  SHIPPED: "bg-accent text-bg",
+  DELIVERED: "bg-surface-2 text-ink",
   CANCELLED: "bg-surface text-ink-muted line-through",
   REFUNDED: "bg-surface text-ink-muted",
 };
@@ -49,15 +49,15 @@ export default async function AdminOrdersPage() {
 
   return (
     <div className="container-page py-8">
-      <h1 className="text-xl font-medium tracking-tight md:text-2xl">Siparişler</h1>
+      <h1 className="display text-2xl md:text-3xl">Siparişler</h1>
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:max-w-md">
         <div className="border border-line p-4">
-          <p className="text-xs uppercase tracking-widest text-ink-muted">Ödenen sipariş</p>
+          <p className="label-caps">Ödenen sipariş</p>
           <p className="mt-1 text-xl font-medium tabular-nums">{paidCount}</p>
         </div>
         <div className="border border-line p-4">
-          <p className="text-xs uppercase tracking-widest text-ink-muted">Toplam ciro</p>
+          <p className="label-caps">Toplam ciro</p>
           <p className="mt-1 text-xl font-medium tabular-nums">
             {formatPrice(revenue._sum.total ?? 0)}
           </p>
@@ -72,7 +72,7 @@ export default async function AdminOrdersPage() {
           <ul className="mt-2 space-y-1">
             {needsAttention.map((order) => (
               <li key={order.id} className="text-sm text-ink-muted">
-                <Link href={`/admin/siparis/${order.id}`} className="underline underline-offset-2">
+                <Link href={`/admin/siparis/${order.id}`} className="link-quiet">
                   {order.orderNo}
                 </Link>{" "}
                 — {order.errorMessage}

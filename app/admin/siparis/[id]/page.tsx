@@ -26,11 +26,11 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/sipa
 
   return (
     <div className="container-page py-8">
-      <Link href="/admin" className="text-xs text-ink-muted hover:text-ink">
+      <Link href="/admin" className="text-xs text-ink-muted transition-colors hover:text-accent">
         ← Siparişler
       </Link>
 
-      <h1 className="mt-4 text-xl font-medium tracking-tight md:text-2xl">{order.orderNo}</h1>
+      <h1 className="display mt-4 text-2xl tabular-nums md:text-3xl">{order.orderNo}</h1>
       <p className="mt-1 text-sm text-ink-muted">{formatDate(order.createdAt)}</p>
 
       {order.errorMessage && (
@@ -48,7 +48,7 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/sipa
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px] lg:gap-12">
         <div className="min-w-0">
-          <h2 className="text-xs font-medium uppercase tracking-widest">Ürünler</h2>
+          <h2 className="label-caps">Ürünler</h2>
           <ul className="mt-3 divide-y divide-line border-y border-line">
             {order.items.map((item) => (
               <li key={item.id} className="flex items-start justify-between gap-4 py-3">
@@ -82,7 +82,7 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/sipa
             </div>
           </dl>
 
-          <h2 className="mt-10 text-xs font-medium uppercase tracking-widest">Müşteri</h2>
+          <h2 className="label-caps mt-10">Müşteri</h2>
           <dl className="mt-3 space-y-2 text-sm">
             <Row label="Ad Soyad" value={order.fullName} />
             <Row label="E-posta" value={order.email} />

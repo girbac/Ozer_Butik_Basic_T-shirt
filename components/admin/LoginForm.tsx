@@ -9,7 +9,7 @@ export function LoginForm({ next }: { next: string }) {
   return (
     <div className="container-page flex min-h-[70vh] items-center justify-center py-12">
       <form action={formAction} className="w-full max-w-sm">
-        <h1 className="text-center text-lg font-medium tracking-tight">Yönetim Girişi</h1>
+        <h1 className="display text-center text-2xl">Yönetim Girişi</h1>
 
         <input type="hidden" name="next" value={next} />
 

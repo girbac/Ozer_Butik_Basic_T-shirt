@@ -21,7 +21,7 @@ export default function ShopError({
 
   return (
     <div className="container-page flex min-h-[60vh] flex-col items-center justify-center py-16 text-center">
-      <h1 className="text-2xl font-medium tracking-tight md:text-3xl">Bir şeyler ters gitti</h1>
+      <h1 className="display text-3xl md:text-4xl">Bir şeyler ters gitti</h1>
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-muted">
         Sayfa yüklenirken beklenmedik bir sorun oluştu. Tekrar denemek sorunu
         genellikle çözer.

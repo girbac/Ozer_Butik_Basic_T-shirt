@@ -15,7 +15,7 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="container-page py-8">
-      <h1 className="text-xl font-medium tracking-tight md:text-2xl">Ayarlar</h1>
+      <h1 className="display text-2xl md:text-3xl">Ayarlar</h1>
 
       {HAS_MISSING_STORE_INFO && (
         <p role="alert" className="mt-5 border border-danger px-4 py-3 text-sm leading-relaxed text-danger">

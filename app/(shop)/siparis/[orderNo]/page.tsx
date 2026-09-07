@@ -36,9 +36,7 @@ export default async function OrderResultPage(props: PageProps<"/siparis/[orderN
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-success/10 text-success">
                 <CheckIcon className="h-7 w-7" />
               </span>
-              <h1 className="mt-5 text-2xl font-medium tracking-tight md:text-3xl">
-                Siparişiniz alındı
-              </h1>
+              <h1 className="display mt-5 text-3xl md:text-4xl">Siparişiniz alındı</h1>
               <p className="mt-3 text-sm leading-relaxed text-ink-muted">
                 Teşekkür ederiz. Sipariş özetini{" "}
                 <span className="text-ink">{order.email}</span> adresine gönderdik.
@@ -48,9 +46,7 @@ export default async function OrderResultPage(props: PageProps<"/siparis/[orderN
           </>
         ) : isPending ? (
           <div className="flex flex-col items-center text-center">
-            <h1 className="text-2xl font-medium tracking-tight md:text-3xl">
-              Siparişiniz inceleniyor
-            </h1>
+            <h1 className="display text-3xl md:text-4xl">Siparişiniz inceleniyor</h1>
             <p className="mt-3 text-sm leading-relaxed text-ink-muted">
               Ödemenizin sonucunu henüz kesinleştiremedik. Kartınızdan çekim yapıldıysa
               siparişiniz kısa süre içinde onaylanacak. Emin olmak için bizimle
@@ -59,9 +55,7 @@ export default async function OrderResultPage(props: PageProps<"/siparis/[orderN
           </div>
         ) : (
           <div className="flex flex-col items-center text-center">
-            <h1 className="text-2xl font-medium tracking-tight md:text-3xl">
-              Ödeme tamamlanamadı
-            </h1>
+            <h1 className="display text-3xl md:text-4xl">Ödeme tamamlanamadı</h1>
             <p className="mt-3 text-sm leading-relaxed text-ink-muted">
               Siparişiniz oluşturulamadı ve kartınızdan çekim yapılmadı. Sepetiniz
               duruyor; dilerseniz tekrar deneyebilirsiniz.

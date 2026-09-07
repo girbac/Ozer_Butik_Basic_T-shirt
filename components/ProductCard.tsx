@@ -63,7 +63,7 @@ export function ProductCard({
           />
         )}
         {isSoldOut && (
-          <span className="absolute left-3 top-3 bg-ink px-2 py-1 text-[10px] uppercase tracking-widest text-bg">
+          <span className="absolute left-3 top-3 bg-ink/85 px-2 py-1 text-[10px] uppercase tracking-widest text-bg backdrop-blur-sm">
             Tükendi
           </span>
         )}
@@ -72,8 +72,11 @@ export function ProductCard({
       <div className="mt-3 flex flex-col">
         {/* Dar kartta ad ve fiyat alt alta, geniş kartta yan yana */}
         <div className="flex flex-col gap-0.5 @min-[240px]:flex-row @min-[240px]:items-baseline @min-[240px]:justify-between @min-[240px]:gap-3">
-          <h3 className="text-sm font-medium">
-            <Link href={`/urun/${product.slug}`} className="hover:underline underline-offset-4">
+          <h3 className="display text-base">
+            <Link
+              href={`/urun/${product.slug}`}
+              className="transition-colors hover:text-accent"
+            >
               {product.name}
             </Link>
           </h3>
@@ -104,7 +107,7 @@ export function ProductCard({
                 aria-label={option.name}
                 title={option.name}
                 className={`h-7 w-7 rounded-full border p-[3px] transition-colors ${
-                  index === activeColorIndex ? "border-ink" : "border-transparent"
+                  index === activeColorIndex ? "border-accent" : "border-transparent"
                 }`}
               >
                 <span
@@ -118,9 +121,7 @@ export function ProductCard({
 
         {color && (
           <div className="mt-3 hidden @min-[240px]:block">
-            <p className="mb-1.5 text-[11px] uppercase tracking-widest text-ink-muted">
-              Hızlı ekle
-            </p>
+            <p className="label-caps mb-1.5">Hızlı ekle</p>
             <div className="flex flex-wrap gap-1.5">
               {color.sizes.map((size) => {
                 const outOfStock = size.stock === 0;

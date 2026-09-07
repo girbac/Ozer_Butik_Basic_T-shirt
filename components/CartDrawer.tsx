@@ -6,12 +6,13 @@ import { useEffect, useRef } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 import { CloseIcon, MinusIcon, PlusIcon } from "@/components/Icons";
+import { FreeShippingBar } from "@/components/FreeShippingBar";
 
 /*
  * Sağdan açılan sepet çekmecesi. Mobilde ekranın tamamına yakınını kaplar,
  * masaüstünde 420px genişliğinde bir panel olur.
  */
-export function CartDrawer() {
+export function CartDrawer({ freeShippingThreshold }: { freeShippingThreshold: number }) {
   const { items, isDrawerOpen, closeDrawer, updateQuantity, removeItem, subtotal } =
     useCart();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -54,7 +55,7 @@ export function CartDrawer() {
         }`}
       >
         <div className="flex items-center justify-between border-b border-line px-4 py-4">
-          <h2 className="text-sm font-medium uppercase tracking-widest">Sepet</h2>
+          <h2 className="display text-lg">Sepet</h2>
           <button
             type="button"
             onClick={closeDrawer}
@@ -95,7 +96,7 @@ export function CartDrawer() {
                     <Link
                       href={`/urun/${item.productSlug}`}
                       onClick={closeDrawer}
-                      className="truncate text-sm font-medium"
+                      className="display truncate text-[15px]"
                     >
                       {item.productName}
                     </Link>
@@ -144,7 +145,9 @@ export function CartDrawer() {
             </ul>
 
             <div className="border-t border-line px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-              <div className="flex items-center justify-between text-sm">
+              <FreeShippingBar subtotal={subtotal} threshold={freeShippingThreshold} />
+
+              <div className="mt-4 flex items-center justify-between text-sm">
                 <span className="text-ink-muted">Ara toplam</span>
                 <span className="font-medium tabular-nums">{formatPrice(subtotal)}</span>
               </div>

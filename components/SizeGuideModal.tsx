@@ -47,9 +47,7 @@ export function SizeGuideModal({
         className="relative flex max-h-[85vh] w-full max-w-lg flex-col bg-bg sm:max-h-[80vh]"
       >
         <div className="flex items-center justify-between border-b border-line px-4 py-4">
-          <h2 id="size-guide-title" className="text-sm font-medium uppercase tracking-widest">
-            Beden Tablosu
-          </h2>
+          <h2 id="size-guide-title" className="display text-lg">Beden Tablosu</h2>
           <button
             type="button"
             onClick={onClose}
@@ -91,13 +89,11 @@ export function SizeGuideModal({
             </table>
           </div>
 
-          <h3 className="mt-6 text-xs font-medium uppercase tracking-widest">
-            Hangi bedeni seçmeliyim?
-          </h3>
+          <h3 className="label-caps mt-7">Hangi bedeni seçmeliyim?</h3>
           <ul className="mt-3 space-y-2.5">
             {SIZE_GUIDE_TIPS.map((tip) => (
               <li key={tip} className="flex gap-2 text-sm leading-relaxed text-ink-muted">
-                <span aria-hidden="true">—</span>
+                <span aria-hidden="true" className="text-accent">—</span>
                 <span>{tip}</span>
               </li>
             ))}

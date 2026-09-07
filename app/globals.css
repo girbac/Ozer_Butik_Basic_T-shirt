@@ -2,21 +2,48 @@
 
 /*
   Özer Butik tasarım sistemi.
-  Minimal, yüksek kontrast, tek vurgu rengi (siyah). Ürün fotoğrafı sayfanın kahramanı,
-  arayüz geri çekilir. Tailwind v4 CSS-tabanlı tema kullanır (tailwind.config.ts yok).
+
+  Yaklaşım: sakin ama özenli. Sayfa "beyaz + gri" değil, sıcak kâğıt tonunda;
+  tek bir vurgu rengi (kil) çok az yerde, hep aynı anlamda kullanılıyor.
+  Amaç, az sayıda ögeyle bakımlı bir his vermek — göz yormadan.
+
+  Renk kullanım kuralları:
+  - ink       → metin ve birincil buton. Saf siyah değil, hafif sıcak.
+  - accent    → SADECE şu beş yer: duyuru şeridi, seçili renk halkası, klavye
+                odak halkası, azalan stok uyarısı, ücretsiz kargo çubuğu.
+                Bunun dışına taşarsa vurgu olmaktan çıkar.
+  - surface   → görsel zeminleri ve kartlar. Ürün fotoğrafı önde kalsın diye
+                düşük kontrastlı.
+  - danger    → yalnızca hata. Stok azlığı hata değildir, o accent kullanır.
+
+  Tüm renk çiftleri WCAG AA (4.5:1) için doğrulandı; devre dışı ögeler 3:1.
+  Tailwind v4 CSS-tabanlı tema kullanır, tailwind.config.ts yoktur.
 */
 
 @theme {
-  --color-bg: #ffffff;
-  --color-surface: #f6f6f4;
-  --color-ink: #111111;
-  --color-ink-muted: #6b6b6b;
-  --color-line: #e5e5e1;
-  --color-disabled: #b5b5b0;
-  --color-danger: #b3261e;
-  --color-success: #1e7a45;
+  /* Zeminler — sıcak kâğıt */
+  --color-bg: #fbfaf7;
+  --color-surface: #f2efe9;
+  --color-surface-2: #e7e1d7;
+
+  /* Metin — sıcak siyah, saf #000 değil */
+  --color-ink: #1a1815;
+  --color-ink-muted: #6e6861;
+
+  --color-line: #dfd9cf;
+  --color-disabled: #968e82;
+
+  /* Vurgu — kil. Ürün renklerinin (siyah/beyaz/gri/lacivert/bej/haki) hiçbiriyle
+     çakışmıyor, bu yüzden ürün fotoğrafının önüne geçmiyor. */
+  --color-accent: #a2543a;
+  --color-accent-soft: #f4e9e3;
+
+  --color-danger: #a3342b;
+  --color-success: #4a6b4f;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Başlıklar için serif — arayüzün geri kalanı sans kalıyor ki okunurluk düşmesin */
+  --font-display: var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
 
   /* Bölümler arası dikey boşluk: mobilde 56px, masaüstünde 96px */
   --spacing-section: 3.5rem;
@@ -49,8 +76,13 @@
 
   /* Görünür klavye odağı — erişilebilirlik için zorunlu */
   :focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-ink);
   }
 
   /* Hareket azaltma tercihi olan kullanıcılar için animasyonları kapat */
@@ -81,7 +113,27 @@
     }
   }
 
-  /* Birincil buton: siyah, tam genişlik, mobilde rahat dokunulur (min 48px) */
+  /*
+    Başlık tipografisi. Serif yalnızca büyük başlıklarda; küçük boyutta serif
+    okunurluğu düşürdüğü için etiketler ve gövde metni sans kalıyor.
+  */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
+  }
+
+  /* Küçük büyük-harf etiketler: "RENK", "BEDEN", "SİPARİŞ ÖZETİ" */
+  .label-caps {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  /* Birincil buton: koyu, tam genişlik, mobilde rahat dokunulur (min 48px) */
   .btn-primary {
     display: flex;
     align-items: center;
@@ -90,16 +142,18 @@
     padding-inline: 1.5rem;
     background-color: var(--color-ink);
     color: var(--color-bg);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     border-radius: var(--radius-sharp);
-    transition: opacity 150ms ease;
+    transition:
+      background-color 180ms ease,
+      opacity 180ms ease;
   }
 
   .btn-primary:hover:not(:disabled) {
-    opacity: 0.85;
+    background-color: var(--color-accent);
   }
 
   .btn-primary:disabled {
@@ -116,17 +170,39 @@
     padding-inline: 1.5rem;
     border: 1px solid var(--color-ink);
     color: var(--color-ink);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     border-radius: var(--radius-sharp);
-    transition: background-color 150ms ease, color 150ms ease;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      border-color 180ms ease;
   }
 
   .btn-secondary:hover:not(:disabled) {
     background-color: var(--color-ink);
+    border-color: var(--color-ink);
     color: var(--color-bg);
+  }
+
+  /*
+    Metin bağlantısı: altı çizgi hover'da kil rengine döner. Sürekli renkli
+    bağlantı yerine bu, sayfayı sakin tutup yine de canlı hissettiriyor.
+  */
+  .link-quiet {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-line);
+    transition:
+      color 180ms ease,
+      text-decoration-color 180ms ease;
+  }
+
+  .link-quiet:hover {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent);
   }
 
   /* Yatay kaydırmalı şeritlerde kaydırma çubuğunu gizle (mobil carousel) */

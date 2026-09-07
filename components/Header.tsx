@@ -13,7 +13,8 @@ export function Header({ announcement }: { announcement: string }) {
 
   return (
     <>
-      <div className="bg-ink text-bg">
+      {/* Duyuru şeridi kil renginde: sayfanın tek renkli aksanı burada başlıyor */}
+      <div className="bg-accent text-bg">
         <p className="container-page py-2 text-center text-[11px] leading-tight tracking-wide sm:text-xs">
           {announcement}
         </p>
@@ -23,7 +24,7 @@ export function Header({ announcement }: { announcement: string }) {
         <div className="container-page flex h-14 items-center justify-between sm:h-16">
           <Link
             href="/"
-            className="text-sm font-semibold tracking-[0.2em] sm:text-base"
+            className="text-sm font-semibold tracking-[0.18em] sm:text-base"
             aria-label="Özer Butik ana sayfa"
           >
             ÖZER BUTİK
@@ -39,7 +40,7 @@ export function Header({ announcement }: { announcement: string }) {
           >
             <BagIcon className="h-6 w-6" />
             {isReady && itemCount > 0 && (
-              <span className="absolute right-0.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink px-1 text-[10px] font-medium text-bg">
+              <span className="absolute right-0.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-bg">
                 {itemCount}
               </span>
             )}

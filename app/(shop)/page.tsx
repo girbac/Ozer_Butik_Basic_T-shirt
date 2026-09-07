@@ -34,8 +34,8 @@ export default async function HomePage() {
   return (
     <>
       <section className="container-page pt-8 md:pt-12">
-        <h1 className="text-3xl font-medium tracking-tight md:text-[40px]">Basic T-shirt</h1>
-        <p className="mt-2 max-w-xl text-sm text-ink-muted md:text-base">
+        <h1 className="display text-4xl md:text-[52px] md:leading-[1.05]">Basic T-shirt</h1>
+        <p className="mt-3 max-w-xl text-sm text-ink-muted md:text-base">
           Beş model, %100 pamuk. Bedeninizi seçin, sepete atın — gerisi bizde.
         </p>
       </section>
@@ -59,7 +59,7 @@ export default async function HomePage() {
         <div className="container-page grid gap-6 py-10 sm:grid-cols-3 md:py-12">
           {trustItems.map(({ Icon, title, text }) => (
             <div key={title} className="flex gap-3">
-              <Icon className="mt-0.5 h-5 w-5 shrink-0" />
+              <Icon className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
               <div>
                 <p className="text-sm font-medium">{title}</p>
                 <p className="mt-1 text-sm text-ink-muted">{text}</p>
@@ -81,9 +81,7 @@ export default async function HomePage() {
             />
           </div>
           <div>
-            <h2 className="text-xl font-medium tracking-tight md:text-2xl">
-              Az model, doğru model
-            </h2>
+            <h2 className="display text-2xl md:text-3xl">Az model, doğru model</h2>
             <p className="mt-4 text-sm leading-relaxed text-ink-muted md:text-base">
               Yüzlerce seçenek arasında kaybolmanızı istemiyoruz. Farklı kalıp ve
               gramajlarda beş model seçtik; her biri defalarca yıkanıp test edildi.

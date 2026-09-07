@@ -76,7 +76,7 @@ export default async function ProductPage(props: PageProps<"/urun/[slug]">) {
       />
 
       <nav aria-label="Konum" className="container-page pt-4">
-        <Link href="/" className="text-xs text-ink-muted hover:text-ink">
+        <Link href="/" className="text-xs text-ink-muted transition-colors hover:text-accent">
           ← Tüm modeller
         </Link>
       </nav>
@@ -89,7 +89,7 @@ export default async function ProductPage(props: PageProps<"/urun/[slug]">) {
 
       {others.length > 0 && (
         <section className="container-page mt-section md:mt-section-lg" aria-labelledby="others">
-          <h2 id="others" className="text-lg font-medium tracking-tight md:text-xl">
+          <h2 id="others" className="display text-xl md:text-2xl">
             Diğer modeller
           </h2>
           <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4">

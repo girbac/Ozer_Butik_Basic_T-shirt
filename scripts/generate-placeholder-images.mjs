@@ -75,14 +75,17 @@ function buildSvg({ fill, stroke, bg, label, view }) {
 }
 
 // Seed ile aynı renkler — lib/seed-data.ts içindeki COLORS ile eşleşmeli.
+// Zeminler tasarım sistemindeki --color-surface (#f2efe9) çevresinde, sıcak kâğıt
+// tonunda. Her renge çok hafif farklı bir ton veriliyor ki vitrindeki beş kart
+// yan yana dururken tekdüze görünmesin.
 const COLORS = [
-  { slug: "siyah", label: "SİYAH", fill: "#1a1a1a", stroke: "#5a5a5a", bg: "#efefec" },
-  { slug: "beyaz", label: "BEYAZ", fill: "#fbfbfa", stroke: "#c9c9c4", bg: "#eceae5" },
-  { slug: "gri", label: "GRİ", fill: "#9b9b98", stroke: "#6f6f6c", bg: "#f2f2f0" },
-  { slug: "lacivert", label: "LACİVERT", fill: "#1f2a44", stroke: "#5b6480", bg: "#eef0f4" },
-  { slug: "bej", label: "BEJ", fill: "#d8cbb4", stroke: "#a2947b", bg: "#f4f1ea" },
-  { slug: "haki", label: "HAKİ", fill: "#4d5340", stroke: "#7e8570", bg: "#f0f1ec" },
-  { slug: "antrasit", label: "ANTRASİT", fill: "#3a3d40", stroke: "#71757a", bg: "#f0f0ef" },
+  { slug: "siyah", label: "SİYAH", fill: "#1a1815", stroke: "#5c554c", bg: "#f2efe9" },
+  { slug: "beyaz", label: "BEYAZ", fill: "#fdfcfa", stroke: "#cdc5b8", bg: "#eae5db" },
+  { slug: "gri", label: "GRİ", fill: "#9b968e", stroke: "#6e6861", bg: "#f3f1ec" },
+  { slug: "lacivert", label: "LACİVERT", fill: "#232d45", stroke: "#5d6580", bg: "#eeeee9" },
+  { slug: "bej", label: "BEJ", fill: "#d8cbb4", stroke: "#a2947b", bg: "#f5f1e8" },
+  { slug: "haki", label: "HAKİ", fill: "#4d5340", stroke: "#7e8570", bg: "#f1f0e8" },
+  { slug: "antrasit", label: "ANTRASİT", fill: "#3a3835", stroke: "#736d66", bg: "#f2f0ea" },
 ];
 
 const VIEWS = ["on", "arka", "detay"];
@@ -102,15 +105,15 @@ async function main() {
 
   // Marka bloğu için geniş bir görsel
   const brandSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
-  <rect width="1600" height="1000" fill="#f6f6f4"/>
+  <rect width="1600" height="1000" fill="#f2efe9"/>
   <g transform="translate(200,50) scale(1)">
-    <path d="${tshirtPath()}" fill="#1a1a1a" stroke="#4a4a4a" stroke-width="3" stroke-linejoin="round" transform="scale(0.6) translate(0,120)"/>
+    <path d="${tshirtPath()}" fill="#1a1815" stroke="#5c554c" stroke-width="3" stroke-linejoin="round" transform="scale(0.6) translate(0,120)"/>
   </g>
   <g transform="translate(680,50)">
-    <path d="${tshirtPath()}" fill="#fbfbfa" stroke="#c9c9c4" stroke-width="3" stroke-linejoin="round" transform="scale(0.6) translate(0,120)"/>
+    <path d="${tshirtPath()}" fill="#fdfcfa" stroke="#cdc5b8" stroke-width="3" stroke-linejoin="round" transform="scale(0.6) translate(0,120)"/>
   </g>
   <text x="800" y="940" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
-        font-size="30" letter-spacing="10" fill="#6b6b6b">ÖZER BUTİK · %100 PAMUK</text>
+        font-size="30" letter-spacing="10" fill="#6e6861">ÖZER BUTİK · %100 PAMUK</text>
 </svg>`;
   await sharp(Buffer.from(brandSvg))
     .webp({ quality: 82 })
@@ -119,11 +122,11 @@ async function main() {
 
   // Paylaşım görseli (OpenGraph, 1200x630)
   const ogSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#111111"/>
+  <rect width="1200" height="630" fill="#1a1815"/>
   <text x="600" y="300" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
         font-size="76" letter-spacing="14" fill="#ffffff">ÖZER BUTİK</text>
   <text x="600" y="380" text-anchor="middle" font-family="Helvetica, Arial, sans-serif"
-        font-size="30" letter-spacing="8" fill="#b5b5b0">BASIC T-SHIRT · %100 PAMUK</text>
+        font-size="30" letter-spacing="8" fill="#c9b5a8">BASIC T-SHIRT · %100 PAMUK</text>
 </svg>`;
   await sharp(Buffer.from(ogSvg))
     .webp({ quality: 85 })

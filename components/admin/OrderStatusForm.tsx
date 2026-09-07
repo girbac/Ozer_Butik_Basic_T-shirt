@@ -29,7 +29,7 @@ export function OrderStatusForm({
   if (!isEditable) {
     return (
       <div className="border border-line p-5">
-        <h2 className="text-xs font-medium uppercase tracking-widest">Durum</h2>
+        <h2 className="label-caps">Durum</h2>
         <p className="mt-3 text-sm text-ink-muted">
           Bu siparişin ödemesi tamamlanmadığı için durumu elle değiştirilemez.
         </p>
@@ -39,7 +39,7 @@ export function OrderStatusForm({
 
   return (
     <form action={formAction} className="border border-line p-5">
-      <h2 className="text-xs font-medium uppercase tracking-widest">Durum ve Kargo</h2>
+      <h2 className="label-caps">Durum ve Kargo</h2>
 
       <input type="hidden" name="id" value={orderId} />
 

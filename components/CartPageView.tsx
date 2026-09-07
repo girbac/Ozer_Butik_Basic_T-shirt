@@ -8,7 +8,8 @@ import { useCart } from "@/lib/cart";
 import { replaceCart } from "@/lib/cart-store";
 import type { PricedCart } from "@/lib/cart-server";
 import { formatPrice } from "@/lib/format";
-import { MinusIcon, PlusIcon, TruckIcon } from "@/components/Icons";
+import { MinusIcon, PlusIcon } from "@/components/Icons";
+import { FreeShippingBar } from "@/components/FreeShippingBar";
 
 /*
  * Sepet sayfası.
@@ -69,7 +70,7 @@ export function CartPageView() {
   if (items.length === 0) {
     return (
       <div className="container-page flex flex-col items-center gap-5 py-20 text-center">
-        <h1 className="text-2xl font-medium tracking-tight">Sepetiniz boş</h1>
+        <h1 className="display text-3xl">Sepetiniz boş</h1>
         <p className="max-w-sm text-sm text-ink-muted">
           Beş modelimize göz atın; bedeninizi seçip tek adımda sipariş verebilirsiniz.
         </p>
@@ -97,11 +98,10 @@ export function CartPageView() {
   }
 
   const lines = priced.lines;
-  const remainingForFreeShipping = priced.settings.freeShippingThreshold - priced.subtotal;
 
   return (
     <div className="container-page py-8 md:py-12">
-      <h1 className="text-2xl font-medium tracking-tight md:text-3xl">Sepet</h1>
+      <h1 className="display text-3xl md:text-4xl">Sepet</h1>
 
       {failed && (
         <p role="alert" className="mt-4 border border-danger px-4 py-3 text-sm text-danger">
@@ -143,7 +143,7 @@ export function CartPageView() {
                   <div className="min-w-0">
                     <Link
                       href={`/urun/${line.productSlug}`}
-                      className="text-sm font-medium hover:underline underline-offset-4"
+                      className="display text-base transition-colors hover:text-accent"
                     >
                       {line.productName}
                     </Link>
@@ -193,7 +193,7 @@ export function CartPageView() {
         {/* Özet — masaüstünde sağda yapışkan, mobilde listenin altında */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="border border-line p-5">
-            <h2 className="text-xs font-medium uppercase tracking-widest">Sipariş Özeti</h2>
+            <h2 className="label-caps">Sipariş Özeti</h2>
 
             <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex justify-between">
@@ -216,14 +216,12 @@ export function CartPageView() {
               </div>
             </dl>
 
-            {remainingForFreeShipping > 0 && (
-              <p className="mt-4 flex items-start gap-2 bg-surface p-3 text-xs text-ink-muted">
-                <TruckIcon className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>
-                  {formatPrice(remainingForFreeShipping)} daha ekleyin, kargo ücretsiz olsun.
-                </span>
-              </p>
-            )}
+            <div className="mt-4">
+              <FreeShippingBar
+                subtotal={priced.subtotal}
+                threshold={priced.settings.freeShippingThreshold}
+              />
+            </div>
 
             <Link href="/odeme" className="btn-primary mt-5 w-full">
               Ödemeye Geç

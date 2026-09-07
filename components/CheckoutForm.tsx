@@ -141,7 +141,7 @@ export function CheckoutForm() {
   if (items.length === 0) {
     return (
       <div className="container-page flex flex-col items-center gap-5 py-20 text-center">
-        <h1 className="text-2xl font-medium tracking-tight">Sepetiniz boş</h1>
+        <h1 className="display text-3xl">Sepetiniz boş</h1>
         <p className="max-w-sm text-sm text-ink-muted">
           Ödeme yapabilmek için önce sepetinize ürün eklemelisiniz.
         </p>
@@ -154,7 +154,7 @@ export function CheckoutForm() {
 
   return (
     <div className="container-page py-8 md:py-12">
-      <h1 className="text-2xl font-medium tracking-tight md:text-3xl">Ödeme</h1>
+      <h1 className="display text-3xl md:text-4xl">Ödeme</h1>
 
       {/* Mobilde özet formun üstünde — kullanıcı ne ödeyeceğini baştan görsün */}
       <div className="mt-6 lg:hidden">
@@ -165,7 +165,7 @@ export function CheckoutForm() {
         <form onSubmit={handleSubmit} noValidate className="min-w-0">
           <fieldset disabled={isSubmitting} className="space-y-8">
             <section>
-              <h2 className="text-xs font-medium uppercase tracking-widest">İletişim</h2>
+              <h2 className="label-caps">İletişim</h2>
               <p className="mt-1 text-xs text-ink-muted">
                 Sipariş onayını ve kargo takip numarasını buraya göndereceğiz.
               </p>
@@ -195,7 +195,7 @@ export function CheckoutForm() {
             </section>
 
             <section>
-              <h2 className="text-xs font-medium uppercase tracking-widest">Teslimat Adresi</h2>
+              <h2 className="label-caps">Teslimat Adresi</h2>
               <div className="mt-4 grid gap-4">
                 <Field
                   id="fullName"
@@ -303,14 +303,14 @@ export function CheckoutForm() {
                     setErrors((current) => ({ ...current, contractAccepted: undefined }));
                   }}
                   aria-invalid={Boolean(errors.contractAccepted)}
-                  className="mt-0.5 h-5 w-5 shrink-0 accent-[#111111]"
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-[#a2543a]"
                 />
                 <span className="text-sm leading-relaxed text-ink-muted">
-                  <Link href="/on-bilgilendirme" target="_blank" className="text-ink underline underline-offset-2">
+                  <Link href="/on-bilgilendirme" target="_blank" className="link-quiet text-ink">
                     Ön Bilgilendirme Formu
                   </Link>{" "}
                   ve{" "}
-                  <Link href="/mesafeli-satis" target="_blank" className="text-ink underline underline-offset-2">
+                  <Link href="/mesafeli-satis" target="_blank" className="link-quiet text-ink">
                     Mesafeli Satış Sözleşmesi
                   </Link>
                   &apos;ni okudum, onaylıyorum.
@@ -334,7 +334,7 @@ export function CheckoutForm() {
                   </ul>
                 )}
                 {cartIssues.length > 0 && (
-                  <Link href="/sepet" className="mt-3 inline-block text-ink underline underline-offset-2">
+                  <Link href="/sepet" className="link-quiet mt-3 inline-block text-ink">
                     Sepete git
                   </Link>
                 )}
@@ -346,7 +346,7 @@ export function CheckoutForm() {
                 {isSubmitting ? "Yönlendiriliyor…" : "Ödemeye Geç"}
               </button>
               <p className="mt-3 flex items-center justify-center gap-2 text-xs text-ink-muted">
-                <LockIcon className="h-4 w-4" />
+                <LockIcon className="h-4 w-4 text-accent" />
                 Kart bilgileriniz iyzico&apos;nun güvenli sayfasında alınır, bizde saklanmaz.
               </p>
             </div>
@@ -418,7 +418,7 @@ function OrderSummary({ priced, compact = false }: { priced: PricedCart | null; 
 
   return (
     <div className="border border-line p-5">
-      <h2 className="text-xs font-medium uppercase tracking-widest">Sipariş Özeti</h2>
+      <h2 className="label-caps">Sipariş Özeti</h2>
 
       {!compact && (
         <ul className="mt-4 space-y-4 border-b border-line pb-4">
