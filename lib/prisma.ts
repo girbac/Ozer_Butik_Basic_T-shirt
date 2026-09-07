@@ -7,6 +7,18 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+/**
+ * DATABASE_URL tanımlı mı?
+ *
+ * Yeni kurulan bir projede (ör. Vercel'e ilk yayın) veritabanı henüz bağlanmamış
+ * olabilir. Bu durumda uygulamanın çökmesi yerine kurulum yönergesi göstermesini
+ * istiyoruz. Yalnızca değişkenin VARLIĞINI kontrol ediyor — bağlantı hatalarını
+ * gizlemiyor, onlar normal şekilde yükseliyor.
+ */
+export function isDatabaseConfigured(): boolean {
+  return Boolean(process.env.DATABASE_URL);
+}
+
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
 

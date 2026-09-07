@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import {
   IYZICO_PAYMENT_STATUS_SUCCESS,
@@ -94,6 +95,9 @@ export async function POST(request: Request) {
       where: { id: order.id },
       include: { items: true },
     });
+
+    // Stok düştü: vitrinin önbelleğe alınmış hâli güncel stoğu göstersin.
+    revalidatePath("/");
 
     if (full) {
       // Bilinçli olarak bekliyoruz: Vercel gibi ortamlarda yanıt döndükten sonra

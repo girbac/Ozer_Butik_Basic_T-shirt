@@ -122,6 +122,30 @@ Stok sipariş oluşturulurken değil, **ödeme onaylandığında** düşülür �
   test edilmedi.** Sandbox anahtarları girildikten sonra ilk gerçek ödemenin
   denenmesi gerekiyor.
 
+## Vercel'e yayın
+
+Proje GitHub deposuna bağlıdır; production dalına her push otomatik yayına gider.
+
+**İlk kurulumda panelden 3 şey tanımlanmalı:**
+
+1. **Storage → Neon Postgres** oluşturup projeye bağlayın. `DATABASE_URL`
+   otomatik tanımlanır.
+2. **Settings → Environment Variables**:
+   - `ADMIN_PASSWORD` — `/admin` girişi için, uzun ve tahmin edilemez
+   - `SESSION_SECRET` — `openssl rand -base64 32` ile üretin
+   - `NEXT_PUBLIC_SITE_URL` — alan adınız (iyzico ödeme dönüşü buraya yapılır)
+3. **Deployments → Redeploy**
+
+Bunlar tanımlanana kadar site açılır ama ana sayfada kurulum yönergesi gösterir;
+derleme başarısız olmaz.
+
+Yayın sırasında `scripts/prepare-deploy.mjs` çalışır: bekleyen migration'ları
+uygular ve **yalnızca katalog tamamen boşsa** örnek ürünleri yükler. Dolu bir
+katalogda hiçbir şeye dokunmaz, böylece düzenlemeleriniz ezilmez.
+
+iyzico ve Resend anahtarları olmadan da site çalışır; yalnızca ödeme ve e-posta
+devre dışı kalır.
+
 ## Yapılacaklar (canlıya çıkmadan önce)
 
 - [ ] 5 modelin gerçek isim, fiyat, renk ve beden bilgileri

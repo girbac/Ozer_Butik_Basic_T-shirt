@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 import { sortSizes } from "@/lib/sizes";
 
 export type SizeOption = {
@@ -100,6 +100,8 @@ function groupByColor(product: ProductRow): ColorOption[] {
 }
 
 export async function getActiveProducts(): Promise<ProductCardData[]> {
+  if (!isDatabaseConfigured()) return [];
+
   const products = await prisma.product.findMany({
     where: { active: true },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
@@ -118,6 +120,8 @@ export async function getActiveProducts(): Promise<ProductCardData[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
+  if (!isDatabaseConfigured()) return null;
+
   const product = await prisma.product.findFirst({
     where: { slug, active: true },
     include: productInclude,
@@ -146,6 +150,8 @@ export async function getOtherProducts(excludeSlug: string): Promise<ProductCard
 }
 
 export async function getProductSlugs(): Promise<string[]> {
+  if (!isDatabaseConfigured()) return [];
+
   const products = await prisma.product.findMany({
     where: { active: true },
     select: { slug: true },

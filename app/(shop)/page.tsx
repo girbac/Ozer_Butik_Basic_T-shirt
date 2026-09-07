@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getActiveProducts } from "@/lib/products";
+import { isDatabaseConfigured } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { formatPrice } from "@/lib/format";
 import { ProductCard } from "@/components/ProductCard";
@@ -9,6 +10,14 @@ import { LockIcon, ReturnIcon, TruckIcon } from "@/components/Icons";
  * Ana sayfa. Bilinçli olarak büyük bir "hero" görseli YOK — ziyaretçi ilk ekranda
  * ürünleri görmeli. Kısa bir başlıktan sonra doğrudan 5 model geliyor.
  */
+
+/*
+ * Sayfa stok bilgisi gösterdiği için sonsuza kadar önbellekte kalamaz: bir müşteri
+ * son ürünü aldığında burası da tazelenmeli. Admin panelinden yapılan stok/fiyat
+ * değişiklikleri zaten revalidatePath ile anında yansıyor; bu süre ise vitrin
+ * üzerinden yapılan satışlar için üst sınır.
+ */
+export const revalidate = 60;
 
 export default async function HomePage() {
   const [products, settings] = await Promise.all([getActiveProducts(), getSettings()]);
@@ -41,7 +50,9 @@ export default async function HomePage() {
       </section>
 
       <section className="container-page mt-8 md:mt-10" aria-label="Modeller">
-        {products.length === 0 ? (
+        {!isDatabaseConfigured() ? (
+          <SetupNotice />
+        ) : products.length === 0 ? (
           <p className="py-16 text-center text-sm text-ink-muted">
             Henüz ürün eklenmemiş.
           </p>
@@ -91,5 +102,40 @@ export default async function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+/*
+ * Veritabanı henüz bağlanmamışken gösterilir (ör. Vercel'e ilk yayından hemen
+ * sonra). Sitenin çökmesi yerine ne yapılması gerektiğini anlatır.
+ */
+function SetupNotice() {
+  return (
+    <div className="border border-line bg-surface p-6 md:p-10">
+      <h2 className="display text-xl md:text-2xl">Veritabanı henüz bağlanmadı</h2>
+      <p className="mt-3 max-w-lg text-sm leading-relaxed text-ink-muted">
+        Site yayında, ancak ürünleri saklayacak veritabanı henüz tanımlı değil.
+        Vercel panelinden aşağıdaki adımları tamamladığınızda ürünler otomatik
+        olarak yüklenecek.
+      </p>
+      <ol className="mt-5 max-w-lg list-decimal space-y-2 pl-5 text-sm leading-relaxed text-ink-muted">
+        <li>
+          Vercel projesinde <strong className="text-ink">Storage</strong> sekmesinden
+          bir <strong className="text-ink">Neon Postgres</strong> veritabanı oluşturup
+          projeye bağlayın. <code>DATABASE_URL</code> otomatik tanımlanır.
+        </li>
+        <li>
+          <strong className="text-ink">Settings → Environment Variables</strong>{" "}
+          bölümüne <code>ADMIN_PASSWORD</code> ve <code>SESSION_SECRET</code> ekleyin.
+        </li>
+        <li>
+          <strong className="text-ink">Deployments</strong> sekmesinden son yayını
+          yeniden dağıtın (Redeploy).
+        </li>
+      </ol>
+      <p className="mt-5 text-xs text-ink-muted">
+        Ayrıntılar için depodaki <code>README.md</code> dosyasına bakabilirsiniz.
+      </p>
+    </div>
   );
 }

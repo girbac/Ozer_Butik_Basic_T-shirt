@@ -5,7 +5,12 @@
  * Gerçek bilgiler netleştiğinde admin panelinden düzenlenecek — bu dosyayı
  * tekrar çalıştırmak gerekmez.
  *
- * Çalıştırma: npm run db:seed
+ * Çalıştırma:
+ *   npm run db:seed              → ürünleri yeniden yükler (siparişi olanlara dokunmaz)
+ *   npm run db:seed -- --if-empty → yalnızca katalog TAMAMEN BOŞSA yükler
+ *
+ * --if-empty, yayın sırasında kullanılıyor: dolu bir katalog varsa hiçbir şeye
+ * dokunmuyor, böylece mağaza sahibinin düzenlemeleri ezilmiyor.
  */
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
@@ -18,13 +23,13 @@ const SIZES = ["S", "M", "L", "XL", "XXL"] as const;
 
 /** Renk paleti — public/urunler/<slug>-<görünüm>.webp dosyalarıyla eşleşir. */
 const COLORS = {
-  siyah: { name: "Siyah", hex: "#1a1a1a" },
-  beyaz: { name: "Beyaz", hex: "#fbfbfa" },
-  gri: { name: "Gri", hex: "#9b9b98" },
-  lacivert: { name: "Lacivert", hex: "#1f2a44" },
+  siyah: { name: "Siyah", hex: "#1a1815" },
+  beyaz: { name: "Beyaz", hex: "#fdfcfa" },
+  gri: { name: "Gri", hex: "#9b968e" },
+  lacivert: { name: "Lacivert", hex: "#232d45" },
   bej: { name: "Bej", hex: "#d8cbb4" },
   haki: { name: "Haki", hex: "#4d5340" },
-  antrasit: { name: "Antrasit", hex: "#3a3d40" },
+  antrasit: { name: "Antrasit", hex: "#3a3835" },
 } as const;
 
 type ColorSlug = keyof typeof COLORS;
@@ -124,6 +129,17 @@ function buildSku(productSlug: string, colorSlug: string, size: string) {
 }
 
 async function main() {
+  // Yayın sırasında yalnızca boş katalogda çalışsın diye
+  const onlyIfEmpty = process.argv.includes("--if-empty");
+
+  if (onlyIfEmpty) {
+    const existingCount = await prisma.product.count();
+    if (existingCount > 0) {
+      console.log(`Katalogda ${existingCount} ürün var, başlangıç verisi atlandı.`);
+      return;
+    }
+  }
+
   console.log("Başlangıç verisi yükleniyor…");
 
   for (const item of PRODUCTS) {

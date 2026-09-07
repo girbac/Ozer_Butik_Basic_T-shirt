@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export type StoreSettings = {
   /** Kargo ücreti, kuruş */
@@ -16,6 +16,9 @@ export const DEFAULT_SETTINGS: StoreSettings = {
 };
 
 export async function getSettings(): Promise<StoreSettings> {
+  // Veritabanı henüz bağlanmadıysa site yine de açılsın (bkz. kurulum ekranı)
+  if (!isDatabaseConfigured()) return DEFAULT_SETTINGS;
+
   const rows = await prisma.setting.findMany();
   const map = new Map(rows.map((row) => [row.key, row.value]));
 
