@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { loginAction } from "@/app/admin/actions";
 
@@ -39,6 +40,13 @@ export function LoginForm({ next }: { next: string }) {
         <button type="submit" disabled={isPending} className="btn-primary mt-6 w-full">
           {isPending ? "Kontrol ediliyor…" : "Giriş Yap"}
         </button>
+
+        <p className="mt-4 text-center text-xs text-ink-muted">
+          Giriş yapamıyor musunuz?{" "}
+          <Link href="/admin/durum" className="link-quiet text-ink">
+            Kurulum durumunu kontrol edin
+          </Link>
+        </p>
       </form>
     </div>
   );

@@ -10,8 +10,14 @@ import { ADMIN_COOKIE_NAME, isSessionValueValid } from "@/lib/session-token";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Giriş sayfasının kendisi korumasız olmalı, yoksa sonsuz yönlendirme olur.
-  if (pathname === "/admin/giris") {
+  /*
+   * Korumasız kalması gereken iki sayfa:
+   * - /admin/giris : kilidin kendisi, korunursa sonsuz yönlendirme olur
+   * - /admin/durum : eksik ayar yüzünden giremeyen kişi, ayarları gösteren
+   *   sayfaya da giremezdi. Sayfa hiçbir değer göstermiyor ve her şey
+   *   doğruyken 404 veriyor (bkz. app/admin/durum/page.tsx).
+   */
+  if (pathname === "/admin/giris" || pathname === "/admin/durum") {
     return NextResponse.next();
   }
 
