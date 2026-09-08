@@ -15,11 +15,29 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 export const ADMIN_COOKIE_NAME = "ozer_admin";
 export const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 gün
 
+/** Gizli anahtar için asgari uzunluk. Kısa anahtar imzayı tahmin edilebilir kılar. */
+export const MIN_SECRET_LENGTH = 16;
+
+/*
+ * Değer kırpılıyor: Vercel gibi panellere yapıştırırken sona takılan boşluk veya
+ * satır sonu, anahtarı sessizce değiştirip her girişi başarısız kılardı.
+ */
+function readSecret(): string | undefined {
+  const secret = process.env.SESSION_SECRET?.trim();
+  return secret ? secret : undefined;
+}
+
+/** Anahtar tanımlı ve yeterince uzun mu? Giriş ekranında ayar hatasını ayırt etmek için. */
+export function isSessionSecretUsable(): boolean {
+  const secret = readSecret();
+  return Boolean(secret && secret.length >= MIN_SECRET_LENGTH);
+}
+
 function getSecret(): string {
-  const secret = process.env.SESSION_SECRET;
-  if (!secret || secret.length < 16) {
+  const secret = readSecret();
+  if (!secret || secret.length < MIN_SECRET_LENGTH) {
     throw new Error(
-      "SESSION_SECRET tanımlı değil veya çok kısa. `openssl rand -base64 32` ile üretip .env dosyanıza ekleyin.",
+      `SESSION_SECRET tanımlı değil veya ${MIN_SECRET_LENGTH} karakterden kısa.`,
     );
   }
   return secret;

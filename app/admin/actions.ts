@@ -2,7 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createSession, destroySession, isPasswordCorrect, requireAdmin } from "@/lib/auth";
+import {
+  createSession,
+  destroySession,
+  getAdminConfigProblem,
+  isPasswordCorrect,
+  requireAdmin,
+} from "@/lib/auth";
 import { sendShippingNotification } from "@/lib/mail";
 import { prisma } from "@/lib/prisma";
 
@@ -22,6 +28,18 @@ export async function loginAction(
 ): Promise<FormState> {
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/admin");
+
+  // Önce sunucu ayarlarını kontrol et: eksikse hiçbir şifre çalışmaz ve
+  // "şifre yanlış" demek mağaza sahibini yanlış yöne sürükler.
+  const configProblem = getAdminConfigProblem();
+  if (configProblem) {
+    console.error(`[auth] yönetici girişi yapılandırılmamış: ${configProblem}`);
+    return {
+      error:
+        `Sunucu ayarı eksik (${configProblem}). Vercel → Settings → ` +
+        `Environment Variables bölümünden ekleyip Deployments → Redeploy yapın.`,
+    };
+  }
 
   if (!isPasswordCorrect(password)) {
     // Kasıtlı olarak "şifre yanlış" demiyoruz — hangi bilginin yanlış olduğunu

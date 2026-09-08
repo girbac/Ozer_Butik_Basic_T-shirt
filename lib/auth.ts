@@ -3,8 +3,10 @@ import "server-only";
 import { cookies } from "next/headers";
 import {
   ADMIN_COOKIE_NAME,
+  MIN_SECRET_LENGTH,
   SESSION_DURATION_MS,
   createSessionValue,
+  isSessionSecretUsable,
   isSessionValueValid,
   safeEquals,
 } from "@/lib/session-token";
@@ -19,14 +21,32 @@ import {
 /**
  * Şifreyi doğrular. Karşılaştırma sabit sürelidir — aksi hâlde yanıt süresinden
  * şifrenin ilk karakterleri tahmin edilebilirdi.
+ *
+ * Her iki taraf da kırpılıyor: panele yapıştırırken sona takılan bir boşluk ya da
+ * telefon klavyesinin eklediği boşluk, doğru şifreyi sessizce reddettiriyordu.
  */
 export function isPasswordCorrect(input: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) {
-    console.error("[auth] ADMIN_PASSWORD tanımlı değil, giriş yapılamaz.");
-    return false;
+  const expected = process.env.ADMIN_PASSWORD?.trim();
+  if (!expected) return false;
+  return safeEquals(input.trim(), expected);
+}
+
+/**
+ * Sunucu tarafında eksik bir ayar var mı?
+ *
+ * Giriş ekranında "şifre yanlış" ile "sunucu ayarı eksik" durumlarını ayırmak için.
+ * Tek yöneticili bir mağazada, ayar eksikken genel bir hata göstermek sahibini
+ * teşhis imkânı olmadan dışarıda bırakıyordu. Bu bilgi saldırgana bir şey
+ * kazandırmaz — hiçbir şifrenin çalışmadığını zaten deneyerek öğrenir.
+ */
+export function getAdminConfigProblem(): string | null {
+  if (!process.env.ADMIN_PASSWORD?.trim()) {
+    return "ADMIN_PASSWORD tanımlı değil";
   }
-  return safeEquals(input, expected);
+  if (!isSessionSecretUsable()) {
+    return `SESSION_SECRET tanımlı değil veya ${MIN_SECRET_LENGTH} karakterden kısa`;
+  }
+  return null;
 }
 
 export async function createSession(): Promise<void> {
