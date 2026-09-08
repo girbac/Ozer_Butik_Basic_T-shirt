@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { getActiveProducts } from "@/lib/products";
+import { diagnoseDatabaseError, type DatabaseDiagnosis } from "@/lib/db-error";
+import type { ProductCardData } from "@/lib/products";
 import { getSettings } from "@/lib/settings";
 import { formatPrice } from "@/lib/format";
 import { ProductCard } from "@/components/ProductCard";
@@ -19,7 +21,23 @@ import { LockIcon, ReturnIcon, TruckIcon } from "@/components/Icons";
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [products, settings] = await Promise.all([getActiveProducts(), getSettings()]);
+  const settings = await getSettings();
+
+  /*
+   * Ürünler okunamazsa sayfayı çökertmiyoruz. Vercel'in genel "A server error
+   * occurred" ekranı mağaza sahibine hiçbir şey anlatmıyordu; bunun yerine
+   * sebebini ve ne yapılacağını yazıyoruz. Sorun gizlenmiyor — aksine ilk kez
+   * görünür oluyor.
+   */
+  let products: ProductCardData[] = [];
+  let problem: DatabaseDiagnosis | null = null;
+
+  try {
+    products = await getActiveProducts();
+  } catch (error) {
+    problem = diagnoseDatabaseError(error);
+    console.error(`[anasayfa] ürünler okunamadı (${problem.code}):`, error);
+  }
 
   const trustItems = [
     {
@@ -49,7 +67,9 @@ export default async function HomePage() {
       </section>
 
       <section className="container-page mt-8 md:mt-10" aria-label="Modeller">
-        {products.length === 0 ? (
+        {problem ? (
+          <DatabaseProblem problem={problem} />
+        ) : products.length === 0 ? (
           <p className="py-16 text-center text-sm text-ink-muted">
             Henüz ürün eklenmemiş.
           </p>
@@ -99,5 +119,23 @@ export default async function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+/*
+ * Veritabanı bağlı ama okunamıyorken gösterilir. Teknik ayrıntıyı dökmüyor;
+ * hangi sınıf sorun olduğunu ve ne yapılacağını söylüyor.
+ */
+function DatabaseProblem({ problem }: { problem: DatabaseDiagnosis }) {
+  return (
+    <div role="alert" className="border border-danger p-6 md:p-10">
+      <h2 className="display text-xl text-danger md:text-2xl">{problem.title}</h2>
+      <p className="mt-3 max-w-lg text-sm leading-relaxed text-ink-muted">
+        {problem.action}
+      </p>
+      <p className="mt-4 text-xs text-ink-muted">
+        Teknik kod: <code>{problem.code}</code>
+      </p>
+    </div>
   );
 }
