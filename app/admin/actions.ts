@@ -12,6 +12,9 @@ import {
 import { sendShippingNotification } from "@/lib/mail";
 import { prisma } from "@/lib/prisma";
 import { isImageUploadAvailable, removeImage, storeImage } from "@/lib/image-store";
+import { buildSku, SIZES } from "@/lib/catalog-data";
+import { sortSizes } from "@/lib/sizes";
+import { toSlug, uniqueSlug } from "@/lib/slug";
 
 /*
  * Yönetim paneli işlemleri.
@@ -492,4 +495,173 @@ function revalidateStorefront(): void {
   revalidatePath("/admin/urunler");
   revalidatePath("/");
   revalidatePath("/urun/[slug]", "page");
+}
+
+/*
+ * ————— Yeni renk ve yeni ürün —————
+ *
+ * Renk ayrı bir tablo olmadığı için "renk eklemek" aslında o rengin her bedeni
+ * için bir varyant satırı açmak demek. Hangi bedenler açılacağı ürünün kendi
+ * bedenlerinden alınıyor: bir ürün S-XXL satıyorsa yeni rengi de S-XXL açılmalı.
+ * Ürünün hiç varyantı yoksa (yeni açılmış ürün) standart beden dizisi kullanılıyor.
+ */
+
+/** Ürünün hâlihazırda kullandığı bedenler; yoksa standart dizi. */
+async function resolveSizes(productId: string): Promise<string[]> {
+  const existing = await prisma.variant.findMany({
+    where: { productId },
+    select: { size: true },
+    distinct: ["size"],
+  });
+
+  if (existing.length === 0) return [...SIZES];
+  return sortSizes(existing).map((variant) => variant.size);
+}
+
+/**
+ * Benzersiz SKU üretir.
+ *
+ * Renk adları slug'landığında çakışabiliyor ("Açık Gri" ve "Acik Gri" ikisi de
+ * "acik-gri"). SKU sütunu benzersiz olduğu için çakışmayı burada çözüyoruz;
+ * aksi hâlde kayıt sırasında ham veritabanı hatası alınırdı.
+ */
+async function buildUniqueSku(
+  productSlug: string,
+  colorSlug: string,
+  size: string,
+): Promise<string> {
+  const base = buildSku(productSlug, colorSlug, size);
+  let candidate = base;
+  let counter = 2;
+
+  while (await prisma.variant.findUnique({ where: { sku: candidate }, select: { id: true } })) {
+    candidate = `${base}-${counter++}`;
+  }
+  return candidate;
+}
+
+/** Var olan bir ürüne yeni renk ekler; tüm bedenleri 0 stokla açılır. */
+export async function addColorAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const productId = String(formData.get("productId") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const hex = String(formData.get("hex") ?? "").trim().toLowerCase();
+
+  if (name.length < 2 || name.length > 30) {
+    return { error: "Renk adı 2 ile 30 karakter arasında olmalı." };
+  }
+  if (!/^#[0-9a-f]{6}$/.test(hex)) {
+    return { error: "Renk kodu #1a1815 biçiminde olmalı." };
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { slug: true },
+  });
+  if (!product) return { error: "Ürün bulunamadı." };
+
+  const clash = await prisma.variant.findFirst({
+    where: { productId, colorName: name },
+    select: { id: true },
+  });
+  if (clash) return { error: `Bu üründe zaten "${name}" adında bir renk var.` };
+
+  const sizes = await resolveSizes(productId);
+  const colorSlug = toSlug(name) || "renk";
+
+  /*
+   * Stok bilerek 0: yeni renk elde kaç adet olduğu girilene kadar satılamaz.
+   * Varsayılan bir sayı koymak, olmayan malı satmaya açmak olurdu.
+   */
+  for (const size of sizes) {
+    await prisma.variant.create({
+      data: {
+        productId,
+        colorName: name,
+        colorHex: hex,
+        size,
+        stock: 0,
+        sku: await buildUniqueSku(product.slug, colorSlug, size),
+      },
+    });
+  }
+
+  revalidateStorefront();
+  return {
+    success: `"${name}" eklendi (${sizes.length} beden, stok 0). Fotoğrafını yükleyip stok girin.`,
+  };
+}
+
+/** Yeni ürün açar: ilk rengiyle birlikte, yayına kapalı olarak. */
+export async function createProductAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const name = String(formData.get("name") ?? "").trim();
+  const colorName = String(formData.get("colorName") ?? "").trim();
+  const hex = String(formData.get("hex") ?? "").trim().toLowerCase();
+  const priceLira = Number(String(formData.get("price") ?? "").replace(",", "."));
+
+  if (name.length < 2 || name.length > 80) {
+    return { error: "Ürün adı 2 ile 80 karakter arasında olmalı." };
+  }
+  if (!Number.isFinite(priceLira) || priceLira <= 0) {
+    return { error: "Geçerli bir fiyat girin." };
+  }
+  if (colorName.length < 2 || colorName.length > 30) {
+    return { error: "İlk rengin adı 2 ile 30 karakter arasında olmalı." };
+  }
+  if (!/^#[0-9a-f]{6}$/.test(hex)) {
+    return { error: "Renk kodu #1a1815 biçiminde olmalı." };
+  }
+
+  const existing = await prisma.product.findMany({
+    select: { slug: true, sortOrder: true },
+  });
+  const slug = uniqueSlug(name, existing.map((product) => product.slug));
+  const sortOrder = Math.max(0, ...existing.map((product) => product.sortOrder)) + 1;
+  const colorSlug = toSlug(colorName) || "renk";
+
+  /*
+   * Yeni ürün YAYINA KAPALI açılıyor. Açık açılsaydı vitrine fotoğrafsız,
+   * açıklamasız ve stoksuz bir kart düşerdi; müşteri onu görürdü. Mağaza sahibi
+   * fotoğrafı ve stoğu girdikten sonra "Mağazada yayında" kutusunu kendisi
+   * işaretler.
+   */
+  const product = await prisma.product.create({
+    data: {
+      slug,
+      name,
+      description: "",
+      price: Math.round(priceLira * 100),
+      active: false,
+      sortOrder,
+    },
+  });
+
+  for (const size of SIZES) {
+    await prisma.variant.create({
+      data: {
+        productId: product.id,
+        colorName,
+        colorHex: hex,
+        size,
+        stock: 0,
+        sku: await buildUniqueSku(slug, colorSlug, size),
+      },
+    });
+  }
+
+  revalidateStorefront();
+  return {
+    success:
+      `"${name}" oluşturuldu — henüz YAYINDA DEĞİL. ` +
+      `Fotoğraf, açıklama ve stok girdikten sonra "Mağazada yayında" kutusunu işaretleyin.`,
+  };
 }

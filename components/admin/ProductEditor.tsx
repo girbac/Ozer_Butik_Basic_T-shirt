@@ -6,6 +6,7 @@ import { updateProductAction } from "@/app/admin/actions";
 import { formatPrice } from "@/lib/format";
 import { ColorEditor } from "@/components/admin/ColorEditor";
 import { ImageManager, type ManagedImage } from "@/components/admin/ImageManager";
+import { AddColorForm } from "@/components/admin/AddColorForm";
 import { ChevronDownIcon } from "@/components/Icons";
 
 type ProductData = {
@@ -166,6 +167,8 @@ export function ProductEditor({
               <ColorEditor key={color.name} productId={product.id} color={color} />
             ))}
           </div>
+
+          <AddColorForm productId={product.id} />
 
           <h3 className="label mt-8">Tüm renklerde görünen fotoğraflar</h3>
           <p className="mt-1 text-xs leading-relaxed text-ink-muted">

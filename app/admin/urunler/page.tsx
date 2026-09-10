@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { sortSizes } from "@/lib/sizes";
 import { ProductEditor } from "@/components/admin/ProductEditor";
+import { NewProductForm } from "@/components/admin/NewProductForm";
 
 export const metadata: Metadata = {
   title: "Ürünler",
@@ -26,6 +27,8 @@ export default async function AdminProductsPage() {
         Fiyat, açıklama, renk ve stok bilgilerini buradan güncelleyebilirsiniz.
         Değişiklikler mağazada anında görünür.
       </p>
+
+      <NewProductForm />
 
       <div className="mt-6 space-y-4">
         {products.map((product) => {
