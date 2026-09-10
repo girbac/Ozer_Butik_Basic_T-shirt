@@ -3,6 +3,7 @@ import { getActiveProducts } from "@/lib/products";
 import { diagnoseDatabaseError, type DatabaseDiagnosis } from "@/lib/db-error";
 import type { ProductCardData } from "@/lib/products";
 import { getSettings } from "@/lib/settings";
+import { orderWithFeatured } from "@/lib/featured";
 import { formatPrice } from "@/lib/format";
 import { ProductCard } from "@/components/ProductCard";
 import { ChevronRightIcon, LockIcon, ReturnIcon, TruckIcon } from "@/components/Icons";
@@ -17,6 +18,9 @@ import { ChevronRightIcon, LockIcon, ReturnIcon, TruckIcon } from "@/components/
  * son ürünü aldığında burası da tazelenmeli. Admin panelinden yapılan stok/fiyat
  * değişiklikleri zaten revalidatePath ile anında yansıyor; bu süre ise vitrin
  * üzerinden yapılan satışlar için üst sınır.
+ *
+ * Aynı süre öne çıkan modelin saat başı değişmesini de taşıyor (bkz. lib/featured.ts):
+ * saat dönünce sıradaki model en geç bir dakika içinde büyük karta geçiyor.
  */
 export const revalidate = 60;
 
@@ -96,7 +100,12 @@ export default async function HomePage() {
         ) : (
           // Telefonda 2 sütun: 5 model az kaydırmayla görünsün.
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 lg:gap-5">
-            {products.map((product, index) => (
+            {/*
+              Öne çıkan model saat başı değişiyor ve DİZİNİN BAŞINA alınıyor.
+              Yerinde bırakılıp sadece işaretlenseydi iki sütun kaplayan kart
+              ızgaranın ortasında kalır, yanında boşluk açardı.
+            */}
+            {orderWithFeatured(products).map((product, index) => (
               <ProductCard
                 key={product.id}
                 product={product}
