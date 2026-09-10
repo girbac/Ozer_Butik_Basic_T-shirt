@@ -211,3 +211,130 @@ export async function updateSettingsAction(
   revalidatePath("/", "layout");
   return { success: "Ayarlar kaydedildi." };
 }
+
+/*
+ * ————— Renk yönetimi —————
+ *
+ * Renk ayrı bir tablo değil; her varyantın üzerinde ad ve hex olarak duruyor
+ * (Variant.colorName / colorHex) ve görseller de renge ADIYLA bağlı
+ * (ProductImage.colorName). Bu yüzden bir rengi düzenlemek tek satır değil,
+ * o ürünün o renge ait TÜM varyantlarını ve görsellerini birlikte güncellemek
+ * demek. İkisi tek işlemde (transaction) yapılıyor: yarıda kalırsa görseller
+ * eski adda kalıp renkten kopardı.
+ *
+ * Sipariş geçmişine DOKUNULMUYOR. OrderItem.colorName sipariş anındaki adın
+ * kopyası; müşteri "Bej" aldıysa fişinde Bej yazmalı, sonradan adı "Taş" olsa
+ * bile. Bu yüzden orada bilinçli olarak bir güncelleme yok.
+ */
+
+/** Rengin adını ve hex kodunu değiştirir. */
+export async function updateColorAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const productId = String(formData.get("productId") ?? "");
+  const currentName = String(formData.get("currentName") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const hex = String(formData.get("hex") ?? "").trim().toLowerCase();
+
+  if (!productId || !currentName) {
+    return { error: "Renk bulunamadı. Sayfayı yenileyip tekrar deneyin." };
+  }
+  if (name.length < 2 || name.length > 30) {
+    return { error: "Renk adı 2 ile 30 karakter arasında olmalı." };
+  }
+  if (!/^#[0-9a-f]{6}$/.test(hex)) {
+    return { error: "Renk kodu #1a1815 biçiminde olmalı." };
+  }
+
+  /*
+   * Aynı üründe iki renk aynı adı taşıyamaz — veritabanında da böyle bir kural
+   * var (productId + colorName + size). Kuralın hatasını beklemek yerine burada
+   * yakalayıp anlaşılır bir cümle veriyoruz.
+   */
+  if (name !== currentName) {
+    const clash = await prisma.variant.findFirst({
+      where: { productId, colorName: name },
+      select: { id: true },
+    });
+    if (clash) {
+      return { error: `Bu üründe zaten "${name}" adında bir renk var.` };
+    }
+  }
+
+  await prisma.$transaction([
+    prisma.variant.updateMany({
+      where: { productId, colorName: currentName },
+      data: { colorName: name, colorHex: hex },
+    }),
+    prisma.productImage.updateMany({
+      where: { productId, colorName: currentName },
+      data: { colorName: name },
+    }),
+  ]);
+
+  revalidatePath("/admin/urunler");
+  revalidatePath("/");
+  revalidatePath("/urun/[slug]", "page");
+  return { success: `"${name}" kaydedildi.` };
+}
+
+/** Bir rengi tüm bedenleriyle birlikte siler. */
+export async function deleteColorAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const productId = String(formData.get("productId") ?? "");
+  const currentName = String(formData.get("currentName") ?? "");
+
+  if (!productId || !currentName) {
+    return { error: "Renk bulunamadı. Sayfayı yenileyip tekrar deneyin." };
+  }
+
+  const variants = await prisma.variant.findMany({
+    where: { productId },
+    select: { id: true, colorName: true, _count: { select: { orderItems: true } } },
+  });
+
+  const target = variants.filter((variant) => variant.colorName === currentName);
+  if (target.length === 0) {
+    return { error: "Renk bulunamadı. Sayfayı yenileyip tekrar deneyin." };
+  }
+
+  // Ürünün tek rengi silinirse satılacak bir şey kalmaz.
+  const remainingColors = new Set(
+    variants.filter((v) => v.colorName !== currentName).map((v) => v.colorName),
+  );
+  if (remainingColors.size === 0) {
+    return { error: "Ürünün son rengi silinemez. Önce başka bir renk ekleyin." };
+  }
+
+  /*
+   * Satılmış bir rengi silmek sipariş geçmişini kırar. Veritabanı bunu zaten
+   * engelliyor (OrderItem → Variant ilişkisi Restrict), ama ham kısıt hatası
+   * yerine ne yapılması gerektiğini söylüyoruz: satıştan kaldırmak isteyen
+   * kişinin aradığı şey silmek değil, stoğu sıfırlamak.
+   */
+  const sold = target.reduce((sum, variant) => sum + variant._count.orderItems, 0);
+  if (sold > 0) {
+    return {
+      error:
+        `"${currentName}" rengi siparişlerde geçtiği için silinemez. ` +
+        `Satıştan kaldırmak için tüm bedenlerinin stoğunu 0 yapın.`,
+    };
+  }
+
+  await prisma.$transaction([
+    prisma.productImage.deleteMany({ where: { productId, colorName: currentName } }),
+    prisma.variant.deleteMany({ where: { productId, colorName: currentName } }),
+  ]);
+
+  revalidatePath("/admin/urunler");
+  revalidatePath("/");
+  revalidatePath("/urun/[slug]", "page");
+  return { success: `"${currentName}" silindi.` };
+}

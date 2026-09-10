@@ -20,7 +20,7 @@ export default async function AdminProductsPage() {
     <div className="container-page py-8">
       <h1 className="display text-2xl md:text-3xl">Ürünler</h1>
       <p className="mt-1 text-sm text-ink-muted">
-        Fiyat, açıklama ve stok bilgilerini buradan güncelleyebilirsiniz.
+        Fiyat, açıklama, renk ve stok bilgilerini buradan güncelleyebilirsiniz.
         Değişiklikler mağazada anında görünür.
       </p>
 

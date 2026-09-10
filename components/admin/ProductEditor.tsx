@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { updateProductAction } from "@/app/admin/actions";
 import { formatPrice } from "@/lib/format";
-import { StockInput } from "@/components/admin/StockInput";
+import { ColorEditor } from "@/components/admin/ColorEditor";
 import { ChevronDownIcon } from "@/components/Icons";
 
 type ProductData = {
@@ -150,33 +150,15 @@ export function ProductEditor({
             </div>
           </form>
 
-          <h3 className="label mt-8">Stok</h3>
-          <p className="mt-1 text-xs text-ink-muted">
-            Adedi değiştirdiğinizde otomatik kaydedilir.
+          <h3 className="label mt-8">Renkler ve stok</h3>
+          <p className="mt-1 text-xs leading-relaxed text-ink-muted">
+            Renk adını ve kodunu değiştirip <strong>Rengi Kaydet</strong>&apos;e basın.
+            Stok adedi ise yazdığınız anda kendiliğinden kaydedilir.
           </p>
 
-          <div className="mt-4 space-y-5">
+          <div className="mt-4 space-y-3">
             {colors.map((color) => (
-              <div key={color.name}>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="h-4 w-4 rounded-full border border-line"
-                    style={{ backgroundColor: color.hex }}
-                    aria-hidden="true"
-                  />
-                  <span className="text-sm font-medium">{color.name}</span>
-                </div>
-                <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
-                  {color.sizes.map((size) => (
-                    <StockInput
-                      key={size.id}
-                      variantId={size.id}
-                      size={size.size}
-                      stock={size.stock}
-                    />
-                  ))}
-                </div>
-              </div>
+              <ColorEditor key={color.name} productId={product.id} color={color} />
             ))}
           </div>
         </div>
