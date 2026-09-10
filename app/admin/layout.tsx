@@ -20,9 +20,9 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     <div className="flex min-h-full flex-1 flex-col">
       <header className="border-b border-line bg-surface">
         <div className="container-page flex h-14 items-center justify-between gap-4">
-          <span className="text-sm font-semibold tracking-[0.18em]">
-            ÖZER BUTİK
-            <span className="ml-2 font-normal tracking-normal text-ink-muted">yönetim</span>
+          <span className="display text-base">
+            özer butik
+            <span className="ml-2 font-normal text-ink-muted">yönetim</span>
           </span>
 
           {loggedIn && (
@@ -30,7 +30,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
               <Link
                 href="/"
                 target="_blank"
-                className="hidden px-3 py-2 text-sm text-ink-muted transition-colors hover:text-accent sm:block"
+                className="hidden rounded-full px-3 py-2 text-sm text-ink-muted transition-colors hover:text-ink sm:block"
               >
                 Mağazayı gör
               </Link>
@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="whitespace-nowrap px-3 py-3 text-sm font-medium text-ink-muted transition-colors hover:text-accent"
+                className="whitespace-nowrap px-3 py-3 text-sm font-medium text-ink-muted transition-colors hover:text-ink"
               >
                 {tab.label}
               </Link>

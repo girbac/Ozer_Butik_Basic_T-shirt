@@ -23,7 +23,7 @@ export function FreeShippingBar({
   const percent = Math.min(Math.round((subtotal / threshold) * 100), 100);
 
   return (
-    <div className="bg-surface p-3.5">
+    <div className="rounded-2xl bg-surface-2 p-3.5">
       <p className="flex items-start gap-2 text-xs leading-relaxed">
         {reached ? (
           <>
@@ -34,7 +34,7 @@ export function FreeShippingBar({
           </>
         ) : (
           <>
-            <TruckIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+            <TruckIcon className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
             <span className="text-ink-muted">
               <span className="font-medium text-ink">{formatPrice(remaining)}</span> daha
               ekleyin, kargo ücretsiz olsun.
@@ -44,7 +44,7 @@ export function FreeShippingBar({
       </p>
 
       <div
-        className="mt-2.5 h-1 w-full overflow-hidden rounded-full bg-surface-2"
+        className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-line"
         role="progressbar"
         aria-valuenow={percent}
         aria-valuemin={0}
@@ -53,7 +53,7 @@ export function FreeShippingBar({
       >
         <div
           className={`h-full rounded-full transition-all duration-500 ease-out ${
-            reached ? "bg-success" : "bg-accent"
+            reached ? "bg-success" : "bg-ink"
           }`}
           style={{ width: `${percent}%` }}
         />

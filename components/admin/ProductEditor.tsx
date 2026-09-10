@@ -53,7 +53,7 @@ export function ProductEditor({
   );
 
   return (
-    <div className="border border-line">
+    <div className="card overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
@@ -64,7 +64,7 @@ export function ProductEditor({
           <span className="flex flex-wrap items-center gap-2">
             <span className="display text-base">{product.name}</span>
             {!product.active && (
-              <span className="bg-surface px-2 py-0.5 text-[11px] uppercase tracking-wide text-ink-muted">
+              <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-[11px] text-ink-muted">
                 Yayında değil
               </span>
             )}
@@ -120,7 +120,7 @@ export function ProductEditor({
                 type="checkbox"
                 name="active"
                 defaultChecked={product.active}
-                className="h-5 w-5 accent-[#a2543a]"
+                className="h-5 w-5 accent-[#5433eb]"
               />
               <span className="text-sm">Mağazada yayında</span>
             </label>
@@ -150,7 +150,7 @@ export function ProductEditor({
             </div>
           </form>
 
-          <h3 className="label-caps mt-8">Stok</h3>
+          <h3 className="label mt-8">Stok</h3>
           <p className="mt-1 text-xs text-ink-muted">
             Adedi değiştirdiğinizde otomatik kaydedilir.
           </p>
@@ -209,7 +209,7 @@ function Field({
         defaultValue={defaultValue}
         required={required}
         inputMode={inputMode}
-        className="mt-1.5 h-12 w-full border border-line bg-bg px-3"
+        className="field mt-1.5"
       />
     </div>
   );
@@ -236,7 +236,7 @@ function TextArea({
         name={name}
         defaultValue={defaultValue}
         rows={rows}
-        className="mt-1.5 w-full resize-y border border-line bg-bg px-3 py-2.5"
+        className="field-area mt-1.5"
       />
     </div>
   );

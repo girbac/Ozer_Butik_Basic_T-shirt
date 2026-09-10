@@ -49,7 +49,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
   }, [lightboxIndex, images.length]);
 
   if (images.length === 0) {
-    return <div className="aspect-4/5 w-full bg-surface" aria-hidden="true" />;
+    return <div className="media aspect-4/5 w-full" aria-hidden="true" />;
   }
 
   return (
@@ -65,15 +65,17 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           className="no-scrollbar -mx-4 flex w-[calc(100%+2rem)] snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
         >
           {images.map((image, index) => (
-            <div key={image.url} className="relative aspect-4/5 w-full shrink-0 snap-center bg-surface">
-              <Image
-                src={image.url}
-                alt={image.alt}
-                fill
-                priority={index === 0}
-                sizes="100vw"
-                className="object-cover"
-              />
+            <div key={image.url} className="w-full shrink-0 snap-center px-4">
+              <div className="media relative aspect-4/5 w-full">
+                <Image
+                  src={image.url}
+                  alt={image.alt}
+                  fill
+                  priority={index === 0}
+                  sizes="100vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -84,7 +86,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
               <span
                 key={image.url}
                 className={`h-1.5 rounded-full transition-all duration-200 ${
-                  index === activeIndex ? "w-5 bg-ink" : "w-1.5 bg-line"
+                  index === activeIndex ? "w-5 bg-ink" : "w-1.5 bg-disabled"
                 }`}
               />
             ))}
@@ -100,7 +102,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
         <button
           type="button"
           onClick={() => setLightboxIndex(activeIndex)}
-          className="relative block aspect-4/5 w-full cursor-zoom-in overflow-hidden bg-surface"
+          className="media relative block aspect-4/5 w-full cursor-zoom-in"
           aria-label="Görseli büyüt"
         >
           <Image
@@ -122,8 +124,8 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
                 onClick={() => setActiveIndex(index)}
                 aria-label={`${index + 1}. görseli göster`}
                 aria-pressed={index === activeIndex}
-                className={`relative aspect-4/5 overflow-hidden bg-surface transition-opacity ${
-                  index === activeIndex ? "ring-1 ring-ink" : "opacity-70 hover:opacity-100"
+                className={`relative aspect-4/5 overflow-hidden rounded-xl bg-surface-2 transition-opacity ${
+                  index === activeIndex ? "ring-1 ring-ink" : "opacity-60 hover:opacity-100"
                 }`}
               >
                 <Image src={image.url} alt="" fill sizes="120px" className="object-cover" />
@@ -139,12 +141,12 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
           role="dialog"
           aria-modal="true"
           aria-label={`${productName} büyük görsel`}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/95"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4"
         >
           <button
             type="button"
             onClick={() => setLightboxIndex(null)}
-            className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center text-bg"
+            className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white"
             aria-label="Kapat"
           >
             <CloseIcon className="h-6 w-6" />
@@ -159,7 +161,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
                     index === null ? null : (index - 1 + images.length) % images.length,
                   )
                 }
-                className="absolute left-2 flex h-12 w-12 items-center justify-center text-bg"
+                className="absolute left-2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white"
                 aria-label="Önceki görsel"
               >
                 <ChevronLeftIcon className="h-7 w-7" />
@@ -169,7 +171,7 @@ export function ProductGallery({ images, productName }: { images: GalleryImage[]
                 onClick={() =>
                   setLightboxIndex((index) => (index === null ? null : (index + 1) % images.length))
                 }
-                className="absolute right-2 flex h-12 w-12 items-center justify-center text-bg"
+                className="absolute right-2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white"
                 aria-label="Sonraki görsel"
               >
                 <ChevronRightIcon className="h-7 w-7" />

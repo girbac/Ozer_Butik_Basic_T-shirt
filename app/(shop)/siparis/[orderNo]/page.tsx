@@ -66,7 +66,7 @@ export default async function OrderResultPage(props: PageProps<"/siparis/[orderN
           </div>
         )}
 
-        <div className="mt-10 border border-line">
+        <div className="card mt-10 overflow-hidden">
           <dl className="divide-y divide-line text-sm">
             <div className="flex justify-between gap-4 px-5 py-3.5">
               <dt className="text-ink-muted">Sipariş no</dt>

@@ -9,11 +9,11 @@ import { HAS_MISSING_STORE_INFO } from "@/lib/store-info";
 export default function LegalLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="container-page py-10 md:py-16">
-      <div className="mx-auto max-w-2xl">
+      <div className="card mx-auto max-w-2xl p-6 md:p-10">
         {HAS_MISSING_STORE_INFO && (
           <p
             role="status"
-            className="mb-8 border border-danger px-4 py-3 text-sm leading-relaxed text-danger"
+            className="mb-8 rounded-2xl bg-danger/8 px-4 py-3 text-sm leading-relaxed text-danger"
           >
             <strong>Yayına hazır değil:</strong> Bu sayfadaki köşeli parantezli alanlar
             (ticari unvan, adres, vergi ve ETBİS bilgileri) henüz doldurulmadı.
@@ -24,8 +24,8 @@ export default function LegalLayout({ children }: LayoutProps<"/">) {
 
         <article
           className="
-            [&_h1]:font-[family-name:var(--font-display)] [&_h1]:text-3xl [&_h1]:font-normal [&_h1]:tracking-[-0.015em] [&_h1]:md:text-4xl
-            [&_h2]:mt-10 [&_h2]:font-[family-name:var(--font-display)] [&_h2]:text-xl [&_h2]:font-normal [&_h2]:md:text-2xl
+            [&_h1]:text-3xl [&_h1]:font-medium [&_h1]:tracking-[-0.042em] [&_h1]:md:text-4xl
+            [&_h2]:mt-10 [&_h2]:text-xl [&_h2]:font-medium [&_h2]:tracking-[-0.042em] [&_h2]:md:text-2xl
             [&_h3]:mt-6 [&_h3]:text-sm [&_h3]:font-medium
             [&_p]:mt-4 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-ink-muted
             [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5

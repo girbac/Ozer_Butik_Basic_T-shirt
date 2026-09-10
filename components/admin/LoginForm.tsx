@@ -26,8 +26,8 @@ export function LoginForm({ next }: { next: string }) {
           autoFocus
           aria-invalid={Boolean(state.error)}
           aria-describedby={state.error ? "login-error" : undefined}
-          className={`mt-1.5 h-12 w-full border bg-bg px-3 ${
-            state.error ? "border-danger" : "border-line"
+          className={`field mt-1.5 ${
+            state.error ? "field-error" : ""
           }`}
         />
 

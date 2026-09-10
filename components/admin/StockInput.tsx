@@ -41,7 +41,7 @@ export function StockInput({
           if (Number(event.target.value) !== stock) formRef.current?.requestSubmit();
         }}
         aria-invalid={Boolean(state.error)}
-        className={`mt-1 h-11 w-full border bg-bg px-2 text-center tabular-nums ${
+        className={`mt-1 h-11 w-full rounded-full border bg-surface px-2 text-center tabular-nums ${
           state.error ? "border-danger" : stock === 0 ? "border-danger/40" : "border-line"
         } ${isPending ? "opacity-60" : ""}`}
       />

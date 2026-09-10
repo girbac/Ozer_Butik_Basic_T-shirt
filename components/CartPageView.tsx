@@ -104,7 +104,7 @@ export function CartPageView() {
       <h1 className="display text-3xl md:text-4xl">Sepet</h1>
 
       {failed && (
-        <p role="alert" className="mt-4 border border-danger px-4 py-3 text-sm text-danger">
+        <p role="alert" className="mt-4 rounded-2xl bg-danger/8 px-4 py-3 text-sm text-danger">
           Sepet güncellenirken bir sorun oldu. Sayfayı yenileyip tekrar deneyin.
         </p>
       )}
@@ -113,19 +113,19 @@ export function CartPageView() {
         <p
           key={`${issue.variantId}-${issue.kind}`}
           role="status"
-          className="mt-4 border border-line bg-surface px-4 py-3 text-sm"
+          className="card mt-4 px-4 py-3 text-sm"
         >
           {issue.message}
         </p>
       ))}
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_360px] lg:gap-12">
-        <ul className="divide-y divide-line border-y border-line">
+        <ul className="card divide-y divide-line px-5">
           {lines.map((line) => (
             <li key={line.variantId} className="flex gap-4 py-5">
               <Link
                 href={`/urun/${line.productSlug}`}
-                className="relative aspect-4/5 w-24 shrink-0 overflow-hidden bg-surface sm:w-28"
+                className="media relative aspect-4/5 w-24 shrink-0 sm:w-28"
               >
                 {line.image && (
                   <Image
@@ -157,7 +157,7 @@ export function CartPageView() {
                 </div>
 
                 <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-                  <div className="flex items-center border border-line">
+                  <div className="flex items-center rounded-full border border-line">
                     <button
                       type="button"
                       onClick={() => updateQuantity(line.variantId, line.quantity - 1)}
@@ -192,8 +192,8 @@ export function CartPageView() {
 
         {/* Özet — masaüstünde sağda yapışkan, mobilde listenin altında */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="border border-line p-5">
-            <h2 className="label-caps">Sipariş Özeti</h2>
+          <div className="card p-5 md:p-6">
+            <h2 className="label">Sipariş Özeti</h2>
 
             <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex justify-between">

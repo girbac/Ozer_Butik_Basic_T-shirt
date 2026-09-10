@@ -7,7 +7,7 @@
  */
 export function DemoBanner() {
   return (
-    <div className="border-b border-ink/15 bg-accent-soft">
+    <div className="border-b border-line bg-accent-soft">
       <p className="container-page py-2.5 text-center text-xs leading-relaxed text-ink">
         <strong className="font-medium">Demo görünümü</strong> — veritabanı henüz
         bağlanmadı. Ürünler örnek verilerdir ve{" "}

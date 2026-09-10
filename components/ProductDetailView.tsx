@@ -143,8 +143,8 @@ export function ProductDetailView({
             />
           </div>
 
-          <div className="min-w-0 md:sticky md:top-24 md:self-start">
-            <h1 className="display text-[28px] leading-tight md:text-[34px]">{product.name}</h1>
+          <div className="card min-w-0 p-5 md:sticky md:top-24 md:self-start md:p-7">
+            <h1 className="display text-[26px] leading-tight md:text-[32px]">{product.name}</h1>
             {product.tagline && (
               <p className="mt-1.5 text-sm text-ink-muted">{product.tagline}</p>
             )}
@@ -164,7 +164,7 @@ export function ProductDetailView({
             {product.colors.length > 0 && (
               <div className="mt-7">
                 <div className="flex items-baseline justify-between">
-                  <span className="label-caps">Renk</span>
+                  <span className="label">Renk</span>
                   <span className="text-sm text-ink-muted">{color?.name}</span>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Renk seçimi">
@@ -178,7 +178,7 @@ export function ProductDetailView({
                       title={option.name}
                       className={`h-11 w-11 rounded-full border-2 p-1 transition-colors ${
                         index === colorIndex
-                          ? "border-accent"
+                          ? "border-ink"
                           : "border-transparent hover:border-line"
                       }`}
                     >
@@ -195,7 +195,7 @@ export function ProductDetailView({
             {/* Beden seçimi */}
             <div ref={sizeSectionRef} className="mt-7">
               <div className="flex items-baseline justify-between">
-                <span className="label-caps">Beden</span>
+                <span className="label">Beden</span>
                 {/* -my-3 py-3: yazı boyutu aynı kalırken dokunma alanı 44px'e çıkıyor */}
                 <button
                   type="button"
@@ -210,7 +210,7 @@ export function ProductDetailView({
                 role="group"
                 aria-label="Beden seçimi"
                 className={`mt-3 grid grid-cols-5 gap-2 ${
-                  showSizeError ? "rounded-sm ring-1 ring-danger ring-offset-4" : ""
+                  showSizeError ? "rounded-2xl ring-1 ring-danger ring-offset-4" : ""
                 }`}
               >
                 {color?.sizes.map((size) => {
@@ -224,11 +224,11 @@ export function ProductDetailView({
                       onClick={() => handleSizeChange(size.variantId)}
                       aria-pressed={isSelected}
                       aria-label={outOfStock ? `${size.size} — tükendi` : size.size}
-                      className={`flex h-12 items-center justify-center border text-sm font-medium transition-colors ${
+                      className={`flex h-12 items-center justify-center rounded-full border text-sm font-medium transition-colors ${
                         outOfStock
                           ? "cursor-not-allowed border-line text-disabled line-through"
                           : isSelected
-                            ? "border-ink bg-ink text-bg"
+                            ? "border-ink bg-ink text-white"
                             : "border-line hover:border-ink"
                       }`}
                     >
@@ -246,7 +246,7 @@ export function ProductDetailView({
 
               {selectedSize && selectedSize.stock <= LOW_STOCK_THRESHOLD && (
                 /* Stok azlığı bir hata değil, bu yüzden danger değil accent kullanıyor */
-                <p className="mt-2 flex items-center gap-1.5 text-xs text-accent">
+                <p className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-xs text-accent">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
                   Son {selectedSize.stock} adet
                 </p>
@@ -261,8 +261,8 @@ export function ProductDetailView({
 
             {/* Adet */}
             <div className="mt-6 flex items-center gap-4">
-              <span className="label-caps">Adet</span>
-              <div className="flex items-center border border-line">
+              <span className="label">Adet</span>
+              <div className="flex items-center rounded-full border border-line">
                 <button
                   type="button"
                   onClick={() => setQuantity((value) => Math.max(1, value - 1))}
@@ -310,25 +310,25 @@ export function ProductDetailView({
             {/* Güven satırları — butonun hemen altında olması dönüşüm için kritik */}
             <ul className="mt-6 space-y-2.5 text-sm text-ink-muted">
               <li className="flex items-start gap-2.5">
-                <TruckIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <TruckIcon className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
                 <span>16:00&apos;a kadar verilen siparişler aynı gün kargoda</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
                 <span>{formatPrice(freeShippingThreshold)} üzeri ücretsiz kargo</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <ReturnIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <ReturnIcon className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
                 <span>14 gün içinde koşulsuz iade</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <LockIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                <LockIcon className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
                 <span>iyzico ile 3D Secure güvenli ödeme</span>
               </li>
             </ul>
 
             {/* Detaylar */}
-            <div className="mt-8">
+            <div className="mt-8 border-t border-line">
               <Accordion title="Ürün detayları">
                 <p>{product.description}</p>
                 {product.fabric && <p className="mt-3">{product.fabric}</p>}
@@ -364,23 +364,25 @@ export function ProductDetailView({
 
       {/* Mobil sabit alt satın alma barı */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 backdrop-blur-sm transition-transform duration-200 md:hidden ${
-          isStickyBarVisible ? "translate-y-0" : "translate-y-full"
+        className={`fixed inset-x-3 bottom-3 z-30 pb-[env(safe-area-inset-bottom)] transition-all duration-200 md:hidden ${
+          isStickyBarVisible
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-4 opacity-0"
         }`}
       >
-        <div className="container-page flex items-center gap-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="flex items-center gap-3 rounded-full bg-surface/95 p-2 pl-5 shadow-[var(--shadow-float)] backdrop-blur-md">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs text-ink-muted">
               {color?.name}
               {selectedSize ? ` · ${selectedSize.size}` : ""}
             </p>
-            <p className="text-sm font-semibold tabular-nums">{formatPrice(product.price)}</p>
+            <p className="text-sm font-medium tabular-nums">{formatPrice(product.price)}</p>
           </div>
           <button
             type="button"
             onClick={handleAddToCart}
             disabled={isColorSoldOut}
-            className="btn-primary flex-1"
+            className="btn-primary shrink-0"
           >
             {isColorSoldOut ? "Tükendi" : "Sepete Ekle"}
           </button>

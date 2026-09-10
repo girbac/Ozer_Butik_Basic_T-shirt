@@ -28,8 +28,8 @@ export function OrderStatusForm({
 
   if (!isEditable) {
     return (
-      <div className="border border-line p-5">
-        <h2 className="label-caps">Durum</h2>
+      <div className="card p-5">
+        <h2 className="label">Durum</h2>
         <p className="mt-3 text-sm text-ink-muted">
           Bu siparişin ödemesi tamamlanmadığı için durumu elle değiştirilemez.
         </p>
@@ -38,8 +38,8 @@ export function OrderStatusForm({
   }
 
   return (
-    <form action={formAction} className="border border-line p-5">
-      <h2 className="label-caps">Durum ve Kargo</h2>
+    <form action={formAction} className="card p-5">
+      <h2 className="label">Durum ve Kargo</h2>
 
       <input type="hidden" name="id" value={orderId} />
 
@@ -50,7 +50,7 @@ export function OrderStatusForm({
         id="status"
         name="status"
         defaultValue={currentStatus}
-        className="mt-1.5 h-12 w-full border border-line bg-bg px-3"
+        className="field mt-1.5"
       >
         {STATUS_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
@@ -67,7 +67,7 @@ export function OrderStatusForm({
         name="trackingCode"
         defaultValue={currentTrackingCode}
         placeholder="Girilince müşteriye e-posta gider"
-        className="mt-1.5 h-12 w-full border border-line bg-bg px-3"
+        className="field mt-1.5"
       />
       <p className="mt-1.5 text-xs text-ink-muted">
         Yeni bir numara kaydettiğinizde müşteriye bilgilendirme e-postası gönderilir.

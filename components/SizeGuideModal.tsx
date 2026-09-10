@@ -36,7 +36,7 @@ export function SizeGuideModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 bg-ink/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
       <div
         ref={panelRef}
@@ -44,22 +44,22 @@ export function SizeGuideModal({
         aria-modal="true"
         aria-labelledby="size-guide-title"
         tabIndex={-1}
-        className="relative flex max-h-[85vh] w-full max-w-lg flex-col bg-bg sm:max-h-[80vh]"
+        className="relative flex max-h-[85vh] w-full max-w-lg flex-col rounded-t-[28px] bg-surface shadow-[var(--shadow-float)] sm:max-h-[80vh] sm:rounded-[28px]"
       >
-        <div className="flex items-center justify-between border-b border-line px-4 py-4">
+        <div className="flex items-center justify-between border-b border-line px-5 py-4">
           <h2 id="size-guide-title" className="display text-lg">Beden Tablosu</h2>
           <button
             type="button"
             onClick={onClose}
-            className="-mr-2 flex h-10 w-10 items-center justify-center"
+            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-surface-2"
             aria-label="Beden tablosunu kapat"
           >
             <CloseIcon className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="overflow-y-auto overscroll-contain px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-          <div className="-mx-4 overflow-x-auto px-4">
+        <div className="overflow-y-auto overscroll-contain px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <div className="-mx-5 overflow-x-auto px-5">
             <table className="w-full min-w-[420px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-ink text-left">
@@ -89,11 +89,11 @@ export function SizeGuideModal({
             </table>
           </div>
 
-          <h3 className="label-caps mt-7">Hangi bedeni seçmeliyim?</h3>
+          <h3 className="label mt-7">Hangi bedeni seçmeliyim?</h3>
           <ul className="mt-3 space-y-2.5">
             {SIZE_GUIDE_TIPS.map((tip) => (
               <li key={tip} className="flex gap-2 text-sm leading-relaxed text-ink-muted">
-                <span aria-hidden="true" className="text-accent">—</span>
+                <span aria-hidden="true" className="text-disabled">—</span>
                 <span>{tip}</span>
               </li>
             ))}

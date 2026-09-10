@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -14,18 +14,6 @@ import { getSiteUrl } from "@/lib/site-url";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin", "latin-ext"], // latin-ext: Türkçe ğ ş ı İ karakterleri için
-  display: "swap",
-});
-
-/*
- * Başlıklar için serif. Yalnızca büyük başlıklarda kullanılıyor (bkz. .display),
- * arayüzün geri kalanı Inter kalıyor — küçük boyutta serif okunurluğu düşürüyor.
- * Fraunces değişken bir yazı tipi; tek dosyayla tüm ağırlıklar geliyor.
- */
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -49,12 +37,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   // Kullanıcının yakınlaştırmasını engellemiyoruz — erişilebilirlik için önemli.
-  themeColor: "#1a1815",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="tr" className={`${inter.variable} ${fraunces.variable} h-full antialiased`}>
+    <html lang="tr" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );

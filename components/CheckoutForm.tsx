@@ -162,11 +162,11 @@ export function CheckoutForm() {
       </div>
 
       <div className="mt-6 grid gap-10 lg:mt-8 lg:grid-cols-[1fr_380px] lg:gap-14">
-        <form onSubmit={handleSubmit} noValidate className="min-w-0">
+        <form onSubmit={handleSubmit} noValidate className="card min-w-0 p-5 md:p-8">
           <fieldset disabled={isSubmitting} className="space-y-8">
             <section>
-              <h2 className="label-caps">İletişim</h2>
-              <p className="mt-1 text-xs text-ink-muted">
+              <h2 className="display text-lg">İletişim</h2>
+              <p className="mt-1 text-sm text-ink-muted">
                 Sipariş onayını ve kargo takip numarasını buraya göndereceğiz.
               </p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -195,7 +195,7 @@ export function CheckoutForm() {
             </section>
 
             <section>
-              <h2 className="label-caps">Teslimat Adresi</h2>
+              <h2 className="display text-lg">Teslimat Adresi</h2>
               <div className="mt-4 grid gap-4">
                 <Field
                   id="fullName"
@@ -219,8 +219,8 @@ export function CheckoutForm() {
                       onChange={(event) => updateField("city", event.target.value)}
                       aria-invalid={Boolean(errors.city)}
                       aria-describedby={errors.city ? "city-error" : undefined}
-                      className={`mt-1.5 h-12 w-full border bg-bg px-3 ${
-                        errors.city ? "border-danger" : "border-line"
+                      className={`field mt-1.5 ${
+                        errors.city ? "field-error" : ""
                       }`}
                     >
                       <option value="">Seçin</option>
@@ -261,8 +261,8 @@ export function CheckoutForm() {
                     onChange={(event) => updateField("address", event.target.value)}
                     aria-invalid={Boolean(errors.address)}
                     aria-describedby={errors.address ? "address-error" : undefined}
-                    className={`mt-1.5 w-full resize-y border bg-bg px-3 py-2.5 ${
-                      errors.address ? "border-danger" : "border-line"
+                    className={`field-area mt-1.5 ${
+                      errors.address ? "field-error" : ""
                     }`}
                   />
                   {errors.address && (
@@ -303,7 +303,7 @@ export function CheckoutForm() {
                     setErrors((current) => ({ ...current, contractAccepted: undefined }));
                   }}
                   aria-invalid={Boolean(errors.contractAccepted)}
-                  className="mt-0.5 h-5 w-5 shrink-0 accent-[#a2543a]"
+                  className="mt-0.5 h-5 w-5 shrink-0 rounded accent-[#5433eb]"
                 />
                 <span className="text-sm leading-relaxed text-ink-muted">
                   <Link href="/on-bilgilendirme" target="_blank" className="link-quiet text-ink">
@@ -324,7 +324,7 @@ export function CheckoutForm() {
             </section>
 
             {formError && (
-              <div role="alert" className="border border-danger px-4 py-3 text-sm text-danger">
+              <div role="alert" className="rounded-2xl bg-danger/8 px-4 py-3 text-sm text-danger">
                 <p>{formError}</p>
                 {cartIssues.length > 0 && (
                   <ul className="mt-2 list-inside list-disc space-y-1">
@@ -346,7 +346,7 @@ export function CheckoutForm() {
                 {isSubmitting ? "Yönlendiriliyor…" : "Ödemeye Geç"}
               </button>
               <p className="mt-3 flex items-center justify-center gap-2 text-xs text-ink-muted">
-                <LockIcon className="h-4 w-4 text-accent" />
+                <LockIcon className="h-4 w-4 text-ink-muted" />
                 Kart bilgileriniz iyzico&apos;nun güvenli sayfasında alınır, bizde saklanmaz.
               </p>
             </div>
@@ -393,8 +393,8 @@ function Field({
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
-        className={`mt-1.5 h-12 w-full border bg-bg px-3 ${
-          error ? "border-danger" : "border-line"
+        className={`field mt-1.5 ${
+          error ? "field-error" : ""
         }`}
         {...rest}
       />
@@ -410,21 +410,21 @@ function Field({
 function OrderSummary({ priced, compact = false }: { priced: PricedCart | null; compact?: boolean }) {
   if (!priced) {
     return (
-      <div className="border border-line p-5">
+      <div className="card p-5">
         <p className="text-sm text-ink-muted">Özet hesaplanıyor…</p>
       </div>
     );
   }
 
   return (
-    <div className="border border-line p-5">
-      <h2 className="label-caps">Sipariş Özeti</h2>
+    <div className="card p-5 md:p-6">
+      <h2 className="label">Sipariş Özeti</h2>
 
       {!compact && (
         <ul className="mt-4 space-y-4 border-b border-line pb-4">
           {priced.lines.map((line) => (
             <li key={line.variantId} className="flex gap-3">
-              <div className="relative aspect-4/5 w-14 shrink-0 overflow-hidden bg-surface">
+              <div className="media relative aspect-4/5 w-14 shrink-0">
                 {line.image && (
                   <Image src={line.image} alt="" fill sizes="56px" className="object-cover" />
                 )}

@@ -8,7 +8,7 @@ export function SettingsForm({ settings }: { settings: StoreSettings }) {
   const [state, formAction, isPending] = useActionState(updateSettingsAction, {});
 
   return (
-    <form action={formAction} className="border border-line p-5">
+    <form action={formAction} className="card p-5">
       <div>
         <label htmlFor="shippingFee" className="block text-sm font-medium">
           Kargo ücreti (TL)
@@ -18,7 +18,7 @@ export function SettingsForm({ settings }: { settings: StoreSettings }) {
           name="shippingFee"
           inputMode="decimal"
           defaultValue={(settings.shippingFee / 100).toFixed(2)}
-          className="mt-1.5 h-12 w-full border border-line bg-bg px-3"
+          className="field mt-1.5"
         />
       </div>
 
@@ -31,7 +31,7 @@ export function SettingsForm({ settings }: { settings: StoreSettings }) {
           name="freeShippingThreshold"
           inputMode="decimal"
           defaultValue={(settings.freeShippingThreshold / 100).toFixed(2)}
-          className="mt-1.5 h-12 w-full border border-line bg-bg px-3"
+          className="field mt-1.5"
         />
         <p className="mt-1.5 text-xs text-ink-muted">
           Bu tutarın üzerindeki siparişlerde kargo ücretsiz olur. Kargo ve Teslimat
@@ -48,7 +48,7 @@ export function SettingsForm({ settings }: { settings: StoreSettings }) {
           name="announcement"
           maxLength={120}
           defaultValue={settings.announcement}
-          className="mt-1.5 h-12 w-full border border-line bg-bg px-3"
+          className="field mt-1.5"
         />
         <p className="mt-1.5 text-xs text-ink-muted">
           Sitenin en üstündeki siyah şeritte görünür. Boş bırakırsanız şerit boş kalır.

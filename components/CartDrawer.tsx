@@ -38,7 +38,7 @@ export function CartDrawer({ freeShippingThreshold }: { freeShippingThreshold: n
       aria-hidden={!isDrawerOpen}
     >
       <div
-        className={`absolute inset-0 bg-ink/40 transition-opacity duration-200 ${
+        className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${
           isDrawerOpen ? "opacity-100" : "opacity-0"
         }`}
         onClick={closeDrawer}
@@ -50,16 +50,16 @@ export function CartDrawer({ freeShippingThreshold }: { freeShippingThreshold: n
         aria-modal="true"
         aria-label="Sepet"
         tabIndex={-1}
-        className={`absolute right-0 top-0 flex h-full w-full max-w-[420px] flex-col bg-bg shadow-xl transition-transform duration-200 ease-out ${
+        className={`absolute right-0 top-0 flex h-full w-full flex-col bg-surface shadow-[var(--shadow-float)] transition-transform duration-200 ease-out sm:max-w-[420px] sm:rounded-l-[28px] ${
           isDrawerOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-line px-4 py-4">
+        <div className="flex items-center justify-between border-b border-line px-5 py-4">
           <h2 className="display text-lg">Sepet</h2>
           <button
             type="button"
             onClick={closeDrawer}
-            className="-mr-2 flex h-10 w-10 items-center justify-center"
+            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-surface-2"
             aria-label="Sepeti kapat"
           >
             <CloseIcon className="h-5 w-5" />
@@ -75,13 +75,13 @@ export function CartDrawer({ freeShippingThreshold }: { freeShippingThreshold: n
           </div>
         ) : (
           <>
-            <ul className="flex-1 divide-y divide-line overflow-y-auto overscroll-contain px-4">
+            <ul className="flex-1 divide-y divide-line overflow-y-auto overscroll-contain px-5">
               {items.map((item) => (
                 <li key={item.variantId} className="flex gap-3 py-4">
                   <Link
                     href={`/urun/${item.productSlug}`}
                     onClick={closeDrawer}
-                    className="relative aspect-4/5 w-20 shrink-0 overflow-hidden bg-surface"
+                    className="media relative aspect-4/5 w-20 shrink-0"
                   >
                     <Image
                       src={item.image}
@@ -105,7 +105,7 @@ export function CartDrawer({ freeShippingThreshold }: { freeShippingThreshold: n
                     </p>
 
                     <div className="mt-auto flex items-center justify-between pt-2">
-                      <div className="flex items-center border border-line">
+                      <div className="flex items-center rounded-full border border-line">
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
@@ -144,7 +144,7 @@ export function CartDrawer({ freeShippingThreshold }: { freeShippingThreshold: n
               ))}
             </ul>
 
-            <div className="border-t border-line px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="border-t border-line px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <FreeShippingBar subtotal={subtotal} threshold={freeShippingThreshold} />
 
               <div className="mt-4 flex items-center justify-between text-sm">

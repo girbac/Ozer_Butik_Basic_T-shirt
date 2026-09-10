@@ -18,7 +18,7 @@ export default async function AdminSettingsPage() {
       <h1 className="display text-2xl md:text-3xl">Ayarlar</h1>
 
       {HAS_MISSING_STORE_INFO && (
-        <p role="alert" className="mt-5 border border-danger px-4 py-3 text-sm leading-relaxed text-danger">
+        <p role="alert" className="mt-5 rounded-2xl bg-danger/8 px-4 py-3 text-sm leading-relaxed text-danger">
           <strong>Yasal bilgiler eksik.</strong> Ticari unvan, adres, vergi ve ETBİS
           bilgileri henüz girilmedi. Bu bilgiler yasal sayfalarda göründüğü için
           satışa başlamadan önce <code>lib/store-info.ts</code> dosyasında

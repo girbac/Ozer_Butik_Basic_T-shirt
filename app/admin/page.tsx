@@ -22,13 +22,13 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-surface text-ink-muted",
+  PENDING: "bg-surface-2 text-ink-muted",
   PAID: "bg-success/12 text-success",
   FAILED: "bg-danger/12 text-danger",
-  SHIPPED: "bg-accent text-bg",
-  DELIVERED: "bg-surface-2 text-ink",
-  CANCELLED: "bg-surface text-ink-muted line-through",
-  REFUNDED: "bg-surface text-ink-muted",
+  SHIPPED: "bg-accent/12 text-accent",
+  DELIVERED: "bg-ink text-white",
+  CANCELLED: "bg-surface-2 text-ink-muted line-through",
+  REFUNDED: "bg-surface-2 text-ink-muted",
 };
 
 export default async function AdminOrdersPage() {
@@ -52,12 +52,12 @@ export default async function AdminOrdersPage() {
       <h1 className="display text-2xl md:text-3xl">Siparişler</h1>
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:max-w-md">
-        <div className="border border-line p-4">
-          <p className="label-caps">Ödenen sipariş</p>
+        <div className="card p-4">
+          <p className="label">Ödenen sipariş</p>
           <p className="mt-1 text-xl font-medium tabular-nums">{paidCount}</p>
         </div>
-        <div className="border border-line p-4">
-          <p className="label-caps">Toplam ciro</p>
+        <div className="card p-4">
+          <p className="label">Toplam ciro</p>
           <p className="mt-1 text-xl font-medium tabular-nums">
             {formatPrice(revenue._sum.total ?? 0)}
           </p>
@@ -65,7 +65,7 @@ export default async function AdminOrdersPage() {
       </div>
 
       {needsAttention.length > 0 && (
-        <div role="alert" className="mt-6 border border-danger p-4">
+        <div role="alert" className="mt-6 rounded-2xl bg-danger/8 p-4">
           <p className="text-sm font-medium text-danger">
             {needsAttention.length} siparişte stok sorunu var
           </p>
@@ -85,19 +85,19 @@ export default async function AdminOrdersPage() {
       {orders.length === 0 ? (
         <p className="mt-10 text-sm text-ink-muted">Henüz sipariş yok.</p>
       ) : (
-        <ul className="mt-6 divide-y divide-line border-y border-line">
+        <ul className="card mt-6 divide-y divide-line px-5">
           {orders.map((order) => (
             <li key={order.id}>
               <Link
                 href={`/admin/siparis/${order.id}`}
-                className="flex flex-col gap-2 py-4 transition-colors hover:bg-surface sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
               >
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium tabular-nums">{order.orderNo}</span>
                     <span
-                      className={`px-2 py-0.5 text-[11px] uppercase tracking-wide ${
-                        STATUS_STYLES[order.status] ?? "bg-surface"
+                      className={`rounded-full px-2.5 py-0.5 text-[11px] ${
+                        STATUS_STYLES[order.status] ?? "bg-surface-2"
                       }`}
                     >
                       {STATUS_LABELS[order.status] ?? order.status}

@@ -1,55 +1,90 @@
 @import "tailwindcss";
 
 /*
-  Özer Butik tasarım sistemi.
+  Özer Butik tasarım sistemi — "yüzen kartlar" dili.
 
-  Yaklaşım: sakin ama özenli. Sayfa "beyaz + gri" değil, sıcak kâğıt tonunda;
-  tek bir vurgu rengi (kil) çok az yerde, hep aynı anlamda kullanılıyor.
-  Amaç, az sayıda ögeyle bakımlı bir his vermek — göz yormadan.
+  Fikir: sayfa hafif soğuk gri bir tuval (#f2f4f5), içerik ise bu tuvalin
+  üzerinde YÜZEN beyaz kartlar. Ayrım çizgiyle değil, gölgeyle yapılıyor.
+  Her şey yuvarlak: kartlar 28px, butonlar ve alanlar tam hap (pill).
 
-  Renk kullanım kuralları:
-  - ink       → metin ve birincil buton. Saf siyah değil, hafif sıcak.
-  - accent    → SADECE şu beş yer: duyuru şeridi, seçili renk halkası, klavye
-                odak halkası, azalan stok uyarısı, ücretsiz kargo çubuğu.
-                Bunun dışına taşarsa vurgu olmaktan çıkar.
-  - surface   → görsel zeminleri ve kartlar. Ürün fotoğrafı önde kalsın diye
-                düşük kontrastlı.
-  - danger    → yalnızca hata. Stok azlığı hata değildir, o accent kullanır.
+  Renk kuralı — çok katı ve bilinçli:
+  - Sayfada TEK doygun renk var: mor (#5433eb). Kullanıldığı yer sayılıdır:
+    birincil eylem (Sepete Ekle / Ödemeye Geç), logo noktası, klavye odak
+    halkası ve "Son 2 adet" uyarısı. Bunun dışına taşarsa vurgu olmaktan
+    çıkar; seçili renk/beden gibi durumlar bu yüzden siyah kullanıyor.
+    İkinci bir doygun renk eklenirse morun etkisi tamamen kaybolur.
+  - Geri kalan her şey akromatik: beyaz yüzey, gri tuval, siyah metin.
+    Renk ürün fotoğrafından gelir; arayüz renk üretmez.
+  - danger/success sadece durum bildirir (hata, ücretsiz kargo onayı);
+    dekorasyon olarak kullanılmaz.
 
-  Tüm renk çiftleri WCAG AA (4.5:1) için doğrulandı; devre dışı ögeler 3:1.
+  Tipografi kuralı: tek aile (Inter), 700+ kalınlık YOK. Hiyerarşi kalınlıkla
+  değil, boyut ve NEGATİF harf aralığıyla kuruluyor — büyük metin sıkışır,
+  küçük metin nefes alır. Gövde metni 12px'in altına inmez.
+
   Tailwind v4 CSS-tabanlı tema kullanır, tailwind.config.ts yoktur.
 */
 
 @theme {
-  /* Zeminler — sıcak kâğıt */
-  --color-bg: #fbfaf7;
-  --color-surface: #f2efe9;
-  --color-surface-2: #e7e1d7;
+  /* ————— Zeminler ————— */
+  /* bg = tuval (sayfa), surface = kart/panel (beyaz), surface-2 = kart içi dolgu */
+  --color-bg: #f2f4f5;
+  --color-surface: #ffffff;
+  --color-surface-2: #f2f4f5;
 
-  /* Metin — sıcak siyah, saf #000 değil */
-  --color-ink: #1a1815;
-  --color-ink-muted: #6e6861;
+  /* ————— Metin ————— */
+  --color-ink: #000000;
+  /*
+    İkincil metin. Referanstaki ton #787574; burada bir tık koyusu kullanılıyor
+    çünkü o ton BEYAZ üzerinde WCAG AA'yı (4.5:1) ancak geçiyor, gri tuval
+    üzerinde geçemiyordu (4.14:1). Bu değer her iki yüzeyde de geçiyor
+    (beyaz 4.99, tuval 4.53) ve gözle ayırt edilemeyecek kadar yakın.
+  */
+  --color-ink-muted: #726f6c;
 
-  --color-line: #dfd9cf;
-  --color-disabled: #968e82;
+  --color-line: #ebebeb;
+  /*
+    Devre dışı / tükenmiş. Referanstaki #cccccc beyaz üzerinde 1.61:1 — okunmuyor.
+    Tükenen bedenin ÜSTÜ ÇİZİLİ yazısı müşterinin okuması gereken bir bilgi,
+    süs değil; bu yüzden 3:1'i geçen bir ton kullanılıyor.
+  */
+  --color-disabled: #949190;
 
-  /* Vurgu — kil. Ürün renklerinin (siyah/beyaz/gri/lacivert/bej/haki) hiçbiriyle
-     çakışmıyor, bu yüzden ürün fotoğrafının önüne geçmiyor. */
-  --color-accent: #a2543a;
-  --color-accent-soft: #f4e9e3;
+  /* ————— Tek vurgu: mor ————— */
+  --color-accent: #5433eb;
+  /* Hover'da bir tık koyusu — ayrı bir renk değil, aynı morun koyu hâli */
+  --color-accent-deep: #4526c4;
+  --color-accent-soft: #efecfd;
+  --color-accent-wash: #c0b5f3;
 
-  --color-danger: #a3342b;
-  --color-success: #4a6b4f;
+  /* ————— Durum renkleri ————— */
+  --color-danger: #b3261e;
+  --color-success: #1e7a45;
+
+  /* Koyu bant (footer, "Tükendi" etiketi) — saf siyah değil, sıcak koyu */
+  --color-slate: #332f2d;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Başlıklar için serif — arayüzün geri kalanı sans kalıyor ki okunurluk düşmesin */
-  --font-display: var(--font-fraunces), ui-serif, Georgia, "Times New Roman", serif;
 
-  /* Bölümler arası dikey boşluk: mobilde 56px, masaüstünde 96px */
-  --spacing-section: 3.5rem;
-  --spacing-section-lg: 6rem;
+  /* Bölümler arası dikey boşluk: mobilde 48px, masaüstünde 80px */
+  --spacing-section: 3rem;
+  --spacing-section-lg: 5rem;
 
-  --radius-sharp: 2px;
+  /* Yarıçaplar — 0px yalnızca görsel kenarına ayrılmıştır */
+  --radius-card: 28px;
+  --radius-media: 20px;
+  --radius-soft: 14px;
+  --radius-pill: 9999px;
+
+  /*
+    Gölgeler. Yükseltilmiş kartlar TEK sert gölge değil, iki katmanlı yumuşak
+    gölge kullanır: yakın katman nesneyi yere oturtur, uzak katman yüzdürür.
+  */
+  --shadow-lift: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-chip: 0 2px 8px 0 rgb(0 0 0 / 0.06);
+  --shadow-float: 0 4px 24px 0 rgb(0 0 0 / 0.12);
+  /* Mor butonun gölgesi de mor — vurgu rengi yükseltide de tekrarlanıyor */
+  --shadow-accent: 0 4px 24px 0 rgb(69 36 219 / 0.34);
 }
 
 @layer base {
@@ -63,8 +98,17 @@
     background-color: var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    /* Negatif harf aralığı bu tasarımın imzası — gövdede ölçülü uygulanıyor */
+    letter-spacing: -0.011em;
     /* Mobilde yatay taşmayı kesin olarak engelle */
     overflow-x: hidden;
+  }
+
+  /* Başlıklar büyüdükçe harf aralığı sıkışır: büyük metin toparlanır */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.032em;
   }
 
   /* iOS Safari'de 16px altı font'lu inputlar sayfayı zoom'lar — hepsi en az 16px */
@@ -78,6 +122,7 @@
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+    border-radius: 2px;
   }
 
   ::selection {
@@ -99,96 +144,203 @@
 }
 
 @layer components {
-  /* Sayfa genişliği sarmalayıcısı — mobilde 16px kenar boşluğu */
+  /* Sayfa genişliği sarmalayıcısı — referanstaki 1200px ölçüsü */
   .container-page {
     width: 100%;
-    max-width: 80rem;
+    max-width: 75rem;
     margin-inline: auto;
     padding-inline: 1rem;
   }
 
   @media (min-width: 768px) {
     .container-page {
-      padding-inline: 2rem;
+      padding-inline: 1.5rem;
     }
   }
 
   /*
-    Başlık tipografisi. Serif yalnızca büyük başlıklarda; küçük boyutta serif
-    okunurluğu düşürdüğü için etiketler ve gövde metni sans kalıyor.
+    Başlık tipografisi. Ayrı bir yazı tipi YOK; fark boyut ve sıkılıkta.
+    Kalınlık 500'de duruyor — 700 kullanılmıyor.
   */
   .display {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-optical-sizing: auto;
-    letter-spacing: -0.015em;
+    font-weight: 500;
+    letter-spacing: -0.042em;
   }
 
-  /* Küçük büyük-harf etiketler: "RENK", "BEDEN", "SİPARİŞ ÖZETİ" */
-  .label-caps {
-    font-size: 0.6875rem;
+  /* Küçük bölüm etiketi: "Renk", "Beden", "Sipariş Özeti" */
+  .label {
+    font-size: 0.75rem;
+    line-height: 1.33;
     font-weight: 500;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    letter-spacing: -0.006em;
     color: var(--color-ink-muted);
   }
 
-  /* Birincil buton: koyu, tam genişlik, mobilde rahat dokunulur (min 48px) */
+  /*
+    Yükseltilmiş kart. Kenarlık YOK — beyazın gri tuval üzerindeki farkı ve
+    çift katmanlı gölge ayrımı zaten yapıyor. Kenarlık eklemek katmanı
+    yassılaştırır.
+  */
+  .card {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-lift);
+  }
+
+  /*
+    Kart içindeki görsel kutusu. Yarıçapı kartınkinden ~8px KÜÇÜK: aradaki
+    fark beyaz bir çerçeve oluşturur ve ürün, kart kenarına yapışmaz.
+  */
+  .media {
+    background-color: var(--color-surface-2);
+    border-radius: var(--radius-media);
+    overflow: hidden;
+  }
+
+  /* Birincil buton: mor hap, mor gölge. Mobilde rahat dokunulur (min 48px). */
   .btn-primary {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
     min-height: 3rem;
-    padding-inline: 1.5rem;
-    background-color: var(--color-ink);
-    color: var(--color-bg);
-    font-size: 0.8125rem;
+    padding-inline: 1.75rem;
+    background-color: var(--color-accent);
+    color: #ffffff;
+    font-size: 0.9375rem;
     font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border-radius: var(--radius-sharp);
+    letter-spacing: -0.016em;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-accent);
     transition:
       background-color 180ms ease,
-      opacity 180ms ease;
+      box-shadow 180ms ease,
+      transform 180ms ease;
   }
 
   .btn-primary:hover:not(:disabled) {
-    background-color: var(--color-accent);
+    background-color: var(--color-accent-deep);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(1px);
   }
 
   .btn-primary:disabled {
     background-color: var(--color-disabled);
+    color: #ffffff;
+    box-shadow: none;
     cursor: not-allowed;
   }
 
-  /* İkincil buton: kenarlıklı */
+  /* İkincil buton: beyaz hap, saç teli kenarlık, hafif yükselti */
   .btn-secondary {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
     min-height: 3rem;
-    padding-inline: 1.5rem;
-    border: 1px solid var(--color-ink);
+    padding-inline: 1.75rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
     color: var(--color-ink);
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border-radius: var(--radius-sharp);
+    letter-spacing: -0.016em;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-chip);
     transition:
-      background-color 180ms ease,
-      color 180ms ease,
-      border-color 180ms ease;
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
   }
 
   .btn-secondary:hover:not(:disabled) {
-    background-color: var(--color-ink);
     border-color: var(--color-ink);
-    color: var(--color-bg);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .btn-secondary:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn-secondary:disabled {
+    color: var(--color-disabled);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  /* Küçük hap: kategori/filtre çipi, "Beden tablosu" gibi ikincil eylemler */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding-inline: 1rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-chip);
+    font-size: 0.875rem;
+    letter-spacing: -0.014em;
+    white-space: nowrap;
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .chip:hover {
+    border-color: var(--color-ink);
   }
 
   /*
-    Metin bağlantısı: altı çizgi hover'da kil rengine döner. Sürekli renkli
+    Form alanı. Hap biçimi metinle aynı satırda duran her kontrole uygulanır;
+    çok satırlı alan (textarea) hap olamayacağı için yumuşak yarıçap alır.
+  */
+  .field {
+    width: 100%;
+    height: 3rem;
+    padding-inline: 1.25rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    color: var(--color-ink);
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .field-area {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-soft);
+    color: var(--color-ink);
+    resize: vertical;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .field:hover,
+  .field-area:hover {
+    border-color: var(--color-disabled);
+  }
+
+  .field::placeholder,
+  .field-area::placeholder {
+    color: var(--color-ink-muted);
+  }
+
+  /* Hatalı alan: kenarlık kırmızıya döner, ayrıca metinle de bildirilir */
+  .field-error,
+  .field-error:hover {
+    border-color: var(--color-danger);
+  }
+
+  /*
+    Metin bağlantısı: sakin gri alt çizgi, hover'da mora döner. Sürekli renkli
     bağlantı yerine bu, sayfayı sakin tutup yine de canlı hissettiriyor.
   */
   .link-quiet {
