@@ -76,19 +76,6 @@ export default async function HomePage() {
         <p className="mx-auto mt-4 max-w-md text-sm text-ink-muted md:text-base">
           Beş model, %100 pamuk. Bedeninizi seçin, sepete atın — gerisi bizde.
         </p>
-
-        {/*
-          Söz hapları. Mobilde satır sığmayınca kaydırılıyor; kırpılmış görünmesin
-          diye kenar boşluğu negatif margin ile geri alınıyor.
-        */}
-        <ul className="no-scrollbar -mx-4 mt-6 flex snap-x gap-2 overflow-x-auto px-4 md:justify-center">
-          {promises.map(({ Icon, label }) => (
-            <li key={label} className="chip shrink-0 snap-start">
-              <Icon className="h-4 w-4 shrink-0 text-ink-muted" />
-              {label}
-            </li>
-          ))}
-        </ul>
       </section>
 
       <section className="container-page mt-8 md:mt-12" aria-labelledby="modeller">
@@ -119,6 +106,23 @@ export default async function HomePage() {
             ))}
           </div>
         )}
+
+        {/*
+          Söz hapları ürünlerin ALTINDA: kaydırmadan görülen alanı ürünlere
+          bırakıyor, sözler de tam ürünleri gördükten sonra — yani "alsam mı"
+          sorusunun sorulduğu anda — okunuyor.
+
+          Mobilde satır sığmayınca kaydırılıyor; kırpılmış görünmesin diye
+          kenar boşluğu negatif margin ile geri alınıyor.
+        */}
+        <ul className="no-scrollbar -mx-4 mt-6 flex snap-x gap-2 overflow-x-auto px-4 md:mt-8 md:justify-center">
+          {promises.map(({ Icon, label }) => (
+            <li key={label} className="chip shrink-0 snap-start">
+              <Icon className="h-4 w-4 shrink-0 text-ink-muted" />
+              {label}
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* Marka bloğu — görselin kendisi kart. Sayfanın tek büyük anı. */}
