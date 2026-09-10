@@ -60,14 +60,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
-  // Sepete ekleyince çekmece açılsın — kullanıcı eklendiğini görsün.
-  const addItem = useCallback(
-    (item: Omit<CartItem, "quantity">, quantity = 1) => {
-      addItemToStore(item, quantity);
-      setDrawerOpen(true);
-    },
-    [],
-  );
+  /*
+   * Sepete ekleme çekmeceyi AÇMAZ.
+   *
+   * Açsaydı kullanıcı her eklemede alışverişin ortasında kesilir, çekmeceyi
+   * kapatıp kaldığı yere dönmek zorunda kalırdı. Bu, arka arkaya birkaç ürün
+   * eklemeyi zorlaştırıyor. Sepet, kullanıcı sağ üstteki düğmeye bastığında
+   * açılır — yani istediği zaman.
+   *
+   * Eklendiğinin görülmesi başka türlü sağlanıyor: ekleyen düğme kısa süre
+   * "Sepete eklendi" oluyor ve başlıktaki sepet rozeti artıp göz kırpıyor.
+   */
+  const addItem = useCallback((item: Omit<CartItem, "quantity">, quantity = 1) => {
+    addItemToStore(item, quantity);
+  }, []);
 
   // Çekmece açıkken arkadaki sayfa kaymasın (özellikle mobilde önemli).
   useEffect(() => {

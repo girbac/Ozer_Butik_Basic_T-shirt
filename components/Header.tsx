@@ -47,7 +47,16 @@ export function Header({ announcement }: { announcement: string }) {
           >
             <BagIcon className="h-5 w-5" />
             {isReady && itemCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-medium text-white">
+              /*
+                key={itemCount}: sayı her değiştiğinde React bu ögeyi yeniden
+                bağlar ve sıçrama animasyonu baştan oynar. Sepet çekmecesi
+                kendiliğinden açılmadığı için eklemenin fark edilmesi buna
+                bağlı — ayrıca bir state tutmaya gerek kalmıyor.
+              */
+              <span
+                key={itemCount}
+                className="badge-pop absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-medium text-white"
+              >
                 {itemCount}
               </span>
             )}

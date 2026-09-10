@@ -2,25 +2,32 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 import type { ProductCardData } from "@/lib/products";
+import { CheckIcon } from "@/components/Icons";
 
 /*
  * Vitrin kartı. "Ne alacağını bilen kullanıcı" hedefinin somut karşılığı:
- * kartın üzerinden beden seçip doğrudan sepete eklenebiliyor, ürün sayfasına
- * girmeye gerek kalmıyor.
+ * kartın üzerinden beden seçip sepete eklenebiliyor, ürün sayfasına girmeye
+ * gerek kalmıyor.
+ *
+ * Akış iki adım: önce bedene basılır (yalnızca SEÇİLİR), sonra "Sepete Ekle".
+ * Tek adımlı olsaydı yanlış bedene dokunan kişi farkında olmadan sepete ürün
+ * eklemiş olurdu; seçimi görüp onaylamak bu kazayı ortadan kaldırıyor.
  *
  * Biçim: tuvalin üzerinde yüzen beyaz kart. Kartın yarıçapı (28px) içindeki
  * görselin yarıçapından (20px) 8px büyük; aradaki fark ince bir beyaz çerçeve
  * oluşturuyor ve ürün kartın kenarına yapışmıyor.
- *
- * Beden butonları hover'da gizlenmiyor — gizli davranış keşfedilmez. Bunun yerine
- * kartın KENDİ genişliğine bakıyoruz (container query): dar kartta (telefonda 2 sütun)
- * butonlar parmakla basılamayacak kadar küçüleceği için gizleniyor, kullanıcı ürün
- * sayfasına girip oradaki büyük beden butonlarını kullanıyor.
  */
+
+/** "Sepete eklendi" yazısının düğmede kalma süresi. */
+const ADDED_FEEDBACK_MS = 2000;
+
+/** Bu adedin altında kalan stok kartta da uyarı olarak gösterilir. */
+const LOW_STOCK_THRESHOLD = 3;
+
 export function ProductCard({
   product,
   priority = false,
@@ -38,22 +45,63 @@ export function ProductCard({
 }) {
   const { addItem } = useCart();
   const [activeColorIndex, setActiveColorIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [justAdded, setJustAdded] = useState(false);
+  const [showSizeHint, setShowSizeHint] = useState(false);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Kart ekrandan kalkarsa bekleyen zamanlayıcı boşa çalışmasın
+  useEffect(() => {
+    return () => {
+      if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    };
+  }, []);
 
   const color = product.colors[activeColorIndex];
   const image = color?.images[0];
   const isSoldOut = product.colors.every((c) => c.sizes.every((s) => s.stock === 0));
+  const selected = color?.sizes.find((size) => size.size === selectedSize) ?? null;
 
-  function handleQuickAdd(variantId: string, size: string) {
+  function handleColorChange(index: number) {
+    setActiveColorIndex(index);
+    // Beden adı aynı olsa da varyant değişti; seçim sıfırlanmalı
+    setSelectedSize(null);
+    setJustAdded(false);
+    setShowSizeHint(false);
+  }
+
+  function handleSizeSelect(size: string) {
+    setSelectedSize(size);
+    setJustAdded(false);
+    setShowSizeHint(false);
+  }
+
+  function handleAddToCart() {
     if (!color || !image) return;
+
+    if (!selected) {
+      setShowSizeHint(true);
+      return;
+    }
+
     addItem({
-      variantId,
+      variantId: selected.variantId,
       productSlug: product.slug,
       productName: product.name,
       colorName: color.name,
-      size,
+      size: selected.size,
       unitPrice: product.price,
       image: image.url,
     });
+
+    /*
+     * Sepet çekmecesi artık kendiliğinden açılmıyor (bkz. lib/cart.tsx), bu
+     * yüzden eklendiği burada söylenmeli — yoksa kullanıcı bir şey olup
+     * olmadığını anlayamaz.
+     */
+    setJustAdded(true);
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setJustAdded(false), ADDED_FEEDBACK_MS);
   }
 
   return (
@@ -96,7 +144,7 @@ export function ProductCard({
       </Link>
 
       <div
-        className={`flex flex-col px-1.5 pb-1.5 pt-3 ${
+        className={`flex flex-1 flex-col px-1.5 pb-1.5 pt-3 ${
           featured ? "lg:justify-center lg:px-8 lg:py-6" : ""
         }`}
       >
@@ -121,7 +169,11 @@ export function ProductCard({
         </div>
 
         {product.tagline && (
-          <p className={`mt-1 text-xs text-ink-muted ${featured ? "" : "hidden @min-[240px]:block"}`}>
+          <p
+            className={`mt-1 text-xs text-ink-muted ${
+              featured ? "" : "hidden @min-[240px]:block"
+            }`}
+          >
             {product.tagline}
           </p>
         )}
@@ -132,7 +184,7 @@ export function ProductCard({
               <button
                 key={option.name}
                 type="button"
-                onClick={() => setActiveColorIndex(index)}
+                onClick={() => handleColorChange(index)}
                 aria-pressed={index === activeColorIndex}
                 aria-label={option.name}
                 title={option.name}
@@ -149,27 +201,49 @@ export function ProductCard({
           </div>
         )}
 
-        {color && (
-          <div className={`mt-3 ${featured ? "" : "hidden @min-[240px]:block"}`}>
-            <p className="label mb-1.5">Hızlı ekle</p>
-            <div className="flex flex-wrap gap-1.5">
+        {/*
+          Dar kartta mt-auto: kartlar farklı yükseklikte olsa da düğmeler aynı
+          hizada biter. Geniş kartta ise sütun zaten dikeyde ortalanıyor;
+          ikisi birden uygulanırsa aralarında kocaman bir boşluk kalıyor.
+        */}
+        {color && !isSoldOut && (
+          <div className={featured ? "pt-4" : "mt-auto pt-3"}>
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="label">Beden</span>
+              {selected && (
+                <span className="text-xs text-ink-muted">Seçili: {selected.size}</span>
+              )}
+            </div>
+
+            {/*
+              Dar kartta (telefonda 2 sütun) beş beden yan yana sığmıyor ve
+              parmakla basılamayacak kadar küçülüyordu; bu yüzden dar kartta
+              3 sütuna sarıyor, kart genişleyince 5'e çıkıyor.
+            */}
+            <div
+              role="group"
+              aria-label={`${product.name} beden seçimi`}
+              className={`mt-1.5 grid grid-cols-3 gap-1.5 @min-[220px]:grid-cols-5 ${
+                showSizeHint ? "rounded-2xl ring-1 ring-danger ring-offset-4" : ""
+              }`}
+            >
               {color.sizes.map((size) => {
                 const outOfStock = size.stock === 0;
+                const isSelected = size.size === selectedSize;
                 return (
                   <button
                     key={size.variantId}
                     type="button"
                     disabled={outOfStock}
-                    onClick={() => handleQuickAdd(size.variantId, size.size)}
-                    aria-label={
-                      outOfStock
-                        ? `${product.name} ${color.name} ${size.size} tükendi`
-                        : `${product.name} ${color.name} ${size.size} bedeni sepete ekle`
-                    }
-                    className={`h-9 min-w-9 rounded-full border px-2.5 text-xs font-medium transition-colors ${
+                    onClick={() => handleSizeSelect(size.size)}
+                    aria-pressed={isSelected}
+                    aria-label={outOfStock ? `${size.size} — tükendi` : size.size}
+                    className={`flex h-9 items-center justify-center rounded-full border text-xs font-medium transition-colors ${
                       outOfStock
                         ? "cursor-not-allowed border-line text-disabled line-through"
-                        : "border-line hover:border-accent hover:bg-accent hover:text-white"
+                        : isSelected
+                          ? "border-ink bg-ink text-white"
+                          : "border-line hover:border-ink"
                     }`}
                   >
                     {size.size}
@@ -177,6 +251,40 @@ export function ProductCard({
                 );
               })}
             </div>
+
+            {showSizeHint ? (
+              <p role="alert" className="mt-2 text-xs text-danger">
+                Önce bir beden seçin.
+              </p>
+            ) : (
+              selected &&
+              selected.stock <= LOW_STOCK_THRESHOLD && (
+                <p className="mt-2 text-xs text-accent">Son {selected.stock} adet</p>
+              )
+            )}
+
+            <button type="button" onClick={handleAddToCart} className="btn-ink mt-2.5 w-full">
+              {justAdded ? (
+                <>
+                  <CheckIcon className="h-4 w-4" />
+                  Sepete eklendi
+                </>
+              ) : (
+                "Sepete Ekle"
+              )}
+            </button>
+            {/* Ekran okuyucular için: düğme yazısı değişmese de duyurulsun */}
+            <span role="status" aria-live="polite" className="sr-only">
+              {justAdded ? `${product.name} sepete eklendi` : ""}
+            </span>
+          </div>
+        )}
+
+        {isSoldOut && (
+          <div className={featured ? "pt-4" : "mt-auto pt-3"}>
+            <button type="button" disabled className="btn-ink w-full">
+              Tükendi
+            </button>
           </div>
         )}
       </div>

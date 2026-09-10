@@ -20,6 +20,9 @@ import { CheckIcon, LockIcon, MinusIcon, PlusIcon, ReturnIcon, TruckIcon } from 
 
 const LOW_STOCK_THRESHOLD = 3;
 
+/** "Sepete eklendi" yazısının düğmede kalma süresi. */
+const ADDED_FEEDBACK_MS = 2000;
+
 export function ProductDetailView({
   product,
   initialColorName,
@@ -45,9 +48,18 @@ export function ProductDetailView({
   const [showSizeError, setShowSizeError] = useState(false);
   const [isSizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [isStickyBarVisible, setStickyBarVisible] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   const sizeSectionRef = useRef<HTMLDivElement>(null);
   const buyButtonsRef = useRef<HTMLDivElement>(null);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sayfadan ayrılırken bekleyen zamanlayıcı boşa çalışmasın
+  useEffect(() => {
+    return () => {
+      if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    };
+  }, []);
 
   const color = product.colors[colorIndex];
   const selectedSize = useMemo(
@@ -91,12 +103,14 @@ export function ProductDetailView({
     setSelectedVariantId(null);
     setQuantity(1);
     setShowSizeError(false);
+    setJustAdded(false);
   }
 
   function handleSizeChange(variantId: string) {
     setSelectedVariantId(variantId);
     setShowSizeError(false);
     setQuantity(1);
+    setJustAdded(false);
   }
 
   function handleAddToCart(): boolean {
@@ -118,6 +132,15 @@ export function ProductDetailView({
       },
       quantity,
     );
+
+    /*
+     * Sepet çekmecesi artık kendiliğinden açılmıyor (bkz. lib/cart.tsx), bu
+     * yüzden eklendiği düğmenin kendisinde söyleniyor. Başlıktaki sepet
+     * rozeti de aynı anda artıp göz kırpıyor.
+     */
+    setJustAdded(true);
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setJustAdded(false), ADDED_FEEDBACK_MS);
     return true;
   }
 
@@ -295,7 +318,16 @@ export function ProductDetailView({
                 disabled={isColorSoldOut}
                 className="btn-primary w-full"
               >
-                {isColorSoldOut ? "Tükendi" : "Sepete Ekle"}
+                {isColorSoldOut ? (
+                  "Tükendi"
+                ) : justAdded ? (
+                  <>
+                    <CheckIcon className="h-4 w-4" />
+                    Sepete eklendi
+                  </>
+                ) : (
+                  "Sepete Ekle"
+                )}
               </button>
               <button
                 type="button"
@@ -306,6 +338,10 @@ export function ProductDetailView({
                 Hemen Al
               </button>
             </div>
+
+            <span role="status" aria-live="polite" className="sr-only">
+              {justAdded ? `${product.name} sepete eklendi` : ""}
+            </span>
 
             {/* Güven satırları — butonun hemen altında olması dönüşüm için kritik */}
             <ul className="mt-6 space-y-2.5 text-sm text-ink-muted">
@@ -384,7 +420,7 @@ export function ProductDetailView({
             disabled={isColorSoldOut}
             className="btn-primary shrink-0"
           >
-            {isColorSoldOut ? "Tükendi" : "Sepete Ekle"}
+            {isColorSoldOut ? "Tükendi" : justAdded ? "Eklendi" : "Sepete Ekle"}
           </button>
         </div>
       </div>

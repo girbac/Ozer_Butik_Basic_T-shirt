@@ -233,6 +233,41 @@
     cursor: not-allowed;
   }
 
+  /*
+    Koyu buton: vitrin kartlarındaki "Sepete Ekle".
+
+    Neden mor değil: ana sayfada beş kart var; beşinde de mor buton olsaydı
+    sayfa mora boğulur ve mor vurgu olmaktan çıkardı. Mor, satın alma
+    kararının verildiği yerde (ürün sayfası, sepet, ödeme) kalıyor.
+    Vitrindeki ekleme ise siyah — yine birincil ama daha sessiz.
+  */
+  .btn-ink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+    background-color: var(--color-ink);
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: -0.014em;
+    border-radius: var(--radius-pill);
+    transition:
+      background-color 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .btn-ink:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  .btn-ink:disabled {
+    background-color: var(--color-disabled);
+    cursor: not-allowed;
+  }
+
   /* İkincil buton: beyaz hap, saç teli kenarlık, hafif yükselti */
   .btn-secondary {
     display: flex;
@@ -355,6 +390,33 @@
   .link-quiet:hover {
     color: var(--color-accent);
     text-decoration-color: var(--color-accent);
+  }
+
+  /*
+    Sepet rozeti sayısı değişince kısa bir sıçrama.
+
+    Çekmece artık kendiliğinden açılmadığı için ekleme yaptığının fark
+    edilmesi buna bağlı: sayı artarken göz sağ üste çekiliyor. Bileşen
+    rozete `key={itemCount}` verdiği için sayı her değiştiğinde animasyon
+    baştan oynuyor — ayrıca bir state'e gerek kalmıyor.
+  */
+  @keyframes badge-pop {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.18);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .badge-pop {
+    animation: badge-pop 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   /* Yatay kaydırmalı şeritlerde kaydırma çubuğunu gizle (mobil carousel) */
