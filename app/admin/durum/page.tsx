@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminConfigProblem } from "@/lib/auth";
 import { diagnoseDatabaseError } from "@/lib/db-error";
-import { isDatabaseConfigured, prisma } from "@/lib/prisma";
+import { getDatabaseUrlSource, isDatabaseConfigured, prisma } from "@/lib/prisma";
+import { listPostgresEnvNames } from "@/lib/database-url.mjs";
 import { isSessionSecretUsable, MIN_SECRET_LENGTH } from "@/lib/session-token";
 
 /*
@@ -36,15 +37,30 @@ type Check = {
 async function runChecks(): Promise<Check[]> {
   const checks: Check[] = [];
 
-  // 1. Veritabanı adresi
+  /*
+   * 1. Veritabanı adresi.
+   *
+   * Adı DATABASE_URL olmak zorunda değil — Vercel'de Postgres bağlarken seçilen
+   * ön eke göre STORAGE_URL, POSTGRES_URL vb. olabiliyor. Hangisinde bulunduğunu
+   * YAZIYORUZ: bu sayfanın varlık sebebi tahmin ettirmemek. Bulunamadığında da
+   * ortamda Postgres adresi taşıyan başka değişken var mı diye bakıp adlarını
+   * (değerlerini değil) listeliyoruz.
+   */
   const dbConfigured = isDatabaseConfigured();
+  const dbSource = getDatabaseUrlSource();
+  const postgresNames = listPostgresEnvNames();
+
   checks.push({
-    label: "DATABASE_URL",
+    label: "Veritabanı adresi",
     ok: dbConfigured,
-    detail: dbConfigured ? "Tanımlı" : "Tanımlı değil — mağaza demo görünümünde",
+    detail: dbConfigured
+      ? `Bulundu — ${dbSource} değişkeninde`
+      : postgresNames.length > 0
+        ? `Bulunamadı. Postgres adresi taşıyan değişkenler: ${postgresNames.join(", ")}`
+        : "Bulunamadı — mağaza demo görünümünde",
     action: dbConfigured
       ? undefined
-      : "Vercel → Storage → Neon Postgres oluşturup projeye bağlayın.",
+      : "Vercel → Storage → Neon Postgres oluşturup projeye bağlayın. Değişkenin adı önemli değil, adresi kendimiz buluyoruz.",
   });
 
   // 2. Veritabanına gerçekten ulaşılıyor mu, tablolar var mı

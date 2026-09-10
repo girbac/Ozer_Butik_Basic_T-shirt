@@ -2,13 +2,19 @@
 // npm install --save-dev prisma dotenv
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
+import { findDatabaseUrl } from "./lib/database-url.mjs";
 
+/*
+ * Adres tek bir değişken adına bağlı değil: Vercel'de Postgres bağlarken
+ * seçilen ön eke göre değişkenin adı DATABASE_URL yerine STORAGE_URL,
+ * POSTGRES_URL vb. olabiliyor. Bkz. lib/database-url.mjs.
+ */
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: findDatabaseUrl(process.env, { preferDirect: true })?.url,
   },
 });

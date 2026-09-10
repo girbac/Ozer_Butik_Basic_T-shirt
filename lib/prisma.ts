@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
+import { findDatabaseUrl, listPostgresEnvNames } from "@/lib/database-url.mjs";
 
 /*
  * Veritabanı istemcisi — TEMBEL kurulur.
@@ -24,26 +25,42 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 /**
- * DATABASE_URL tanımlı mı?
+ * Kullanılabilir bir veritabanı adresi var mı?
  *
  * Yeni kurulan bir projede (ör. Vercel'e ilk yayın) veritabanı henüz bağlanmamış
  * olabilir. Bu durumda uygulamanın çökmesi yerine kurulum yönergesi göstermesini
- * istiyoruz. Yalnızca değişkenin VARLIĞINI kontrol eder — bağlantı hatalarını
+ * istiyoruz. Yalnızca adresin VARLIĞINI kontrol eder — bağlantı hatalarını
  * gizlemez, onlar normal şekilde yükselir.
+ *
+ * Adres tek bir değişken adına bağlı değil; bkz. lib/database-url.mjs.
  */
 export function isDatabaseConfigured(): boolean {
-  return Boolean(process.env.DATABASE_URL?.trim());
+  return findDatabaseUrl() !== null;
+}
+
+/** Adresin hangi ortam değişkeninde bulunduğu. Kurulum durumu sayfası için. */
+export function getDatabaseUrlSource(): string | null {
+  return findDatabaseUrl()?.source ?? null;
 }
 
 function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL?.trim();
+  const found = findDatabaseUrl();
 
-  if (!connectionString) {
+  if (!found) {
+    // Hata mesajı ne ARADIĞIMIZI değil, ne BULDUĞUMUZU söylesin: log'a bakan
+    // kişi eksik olanın ne olduğunu tahmin etmek zorunda kalmasın.
+    const seen = listPostgresEnvNames();
     throw new Error(
-      "DATABASE_URL tanımlı değil. Yerelde .env dosyanızı .env.example'a bakarak doldurun; " +
+      "Veritabanı adresi bulunamadı. " +
+        (seen.length > 0
+          ? `Postgres adresi taşıyan değişkenler: ${seen.join(", ")} — ama hiçbiri okunamadı.`
+          : "Ortamda Postgres adresi taşıyan hiçbir değişken yok.") +
+        " Yerelde .env dosyanızı .env.example'a bakarak doldurun; " +
         "Vercel'de Storage sekmesinden bir Postgres veritabanı bağlayın.",
     );
   }
+
+  const connectionString = found.url;
 
   // Prisma 7 Postgres için sürücü adaptörü zorunlu.
   return new PrismaClient({
