@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s · Özer Butik",
   },
   description:
-    "Beş model basic t-shirt. Farklı kumaş seçenekleri, sade kalıplar. 500 TL üzeri ücretsiz kargo, 14 gün içinde iade.",
+    "Beş model basic t-shirt. Farklı kumaş seçenekleri, sade kalıplar. Aynı gün kargo, 14 gün içinde iade.",
   openGraph: {
     type: "website",
     locale: "tr_TR",

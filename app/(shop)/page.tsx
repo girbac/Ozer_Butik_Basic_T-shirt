@@ -2,9 +2,7 @@ import Image from "next/image";
 import { getActiveProducts } from "@/lib/products";
 import { diagnoseDatabaseError, type DatabaseDiagnosis } from "@/lib/db-error";
 import type { ProductCardData } from "@/lib/products";
-import { getSettings } from "@/lib/settings";
 import { orderWithFeatured } from "@/lib/featured";
-import { formatPrice } from "@/lib/format";
 import { ProductCard } from "@/components/ProductCard";
 import { ChevronRightIcon, LockIcon, ReturnIcon, TruckIcon } from "@/components/Icons";
 
@@ -25,8 +23,6 @@ import { ChevronRightIcon, LockIcon, ReturnIcon, TruckIcon } from "@/components/
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const settings = await getSettings();
-
   /*
    * Ürünler okunamazsa sayfayı çökertmiyoruz. Vercel'in genel "A server error
    * occurred" ekranı mağaza sahibine hiçbir şey anlatmıyordu; bunun yerine
@@ -43,8 +39,13 @@ export default async function HomePage() {
     console.error(`[anasayfa] ürünler okunamadı (${problem.code}):`, error);
   }
 
+  /*
+   * Söz hapları tutar içermiyor: "şu kadarın üzeri ücretsiz kargo" demek,
+   * ürüne bakan kişiye önce bir eşik hesabı yaptırıyor. Buradaki üç söz de
+   * koşulsuz — okuyan kişinin sepetine bakması gerekmiyor.
+   */
   const promises = [
-    { Icon: TruckIcon, label: `${formatPrice(settings.freeShippingThreshold)} üzeri ücretsiz kargo` },
+    { Icon: TruckIcon, label: "Aynı gün kargo" },
     { Icon: ReturnIcon, label: "14 gün içinde iade" },
     { Icon: LockIcon, label: "iyzico ile güvenli ödeme" },
   ];

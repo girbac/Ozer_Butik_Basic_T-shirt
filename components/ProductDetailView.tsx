@@ -350,10 +350,6 @@ export function ProductDetailView({
                 <span>16:00&apos;a kadar verilen siparişler aynı gün kargoda</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
-                <span>{formatPrice(freeShippingThreshold)} üzeri ücretsiz kargo</span>
-              </li>
-              <li className="flex items-start gap-2.5">
                 <ReturnIcon className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
                 <span>14 gün içinde koşulsuz iade</span>
               </li>

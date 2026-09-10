@@ -104,7 +104,6 @@ async function main() {
   const settings: Record<string, string> = {
     shippingFee: "4900", // 49,00 TL
     freeShippingThreshold: "50000", // 500,00 TL
-    announcement: "500 TL üzeri kargo bedava · 14 gün içinde ücretsiz iade",
   };
 
   for (const [key, value] of Object.entries(settings)) {
