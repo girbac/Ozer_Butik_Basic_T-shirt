@@ -5,14 +5,11 @@ export type StoreSettings = {
   shippingFee: number;
   /** Bu tutarın üzerinde kargo bedava, kuruş */
   freeShippingThreshold: number;
-  /** Sayfa üstündeki duyuru şeridi metni */
-  announcement: string;
 };
 
 export const DEFAULT_SETTINGS: StoreSettings = {
   shippingFee: 4900,
   freeShippingThreshold: 50000,
-  announcement: "500 TL üzeri kargo bedava · 14 gün içinde ücretsiz iade",
 };
 
 /*
@@ -53,7 +50,6 @@ async function readSettingsFromDatabase(): Promise<StoreSettings> {
       "freeShippingThreshold",
       DEFAULT_SETTINGS.freeShippingThreshold,
     ),
-    announcement: map.get("announcement") ?? DEFAULT_SETTINGS.announcement,
   };
 }
 

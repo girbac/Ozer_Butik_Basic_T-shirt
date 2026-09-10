@@ -43,11 +43,24 @@ export function CheckoutForm() {
   const [cartIssues, setCartIssues] = useState<string[]>([]);
   const [isSubmitting, setSubmitting] = useState(false);
 
+  /*
+   * Kupon iki ayrı durumda tutuluyor: kutuya yazılan metin (couponInput) ve
+   * sunucuya gönderilmiş olan kod (appliedCode). Her tuş vuruşunda sunucuya
+   * gidilseydi hem gereksiz istek olurdu hem de kod yarım yazılırken
+   * "böyle bir kupon yok" hatası çakardı.
+   */
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCode, setAppliedCode] = useState<string | null>(null);
+  const [isCouponOpen, setCouponOpen] = useState(false);
+
   useEffect(() => {
     if (!isReady || items.length === 0) return;
 
     let cancelled = false;
-    revalidateCart(items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })))
+    revalidateCart(
+      items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
+      appliedCode,
+    )
       .then((result) => {
         if (cancelled) return;
         setPriced(result);
@@ -71,7 +84,7 @@ export function CheckoutForm() {
     return () => {
       cancelled = true;
     };
-  }, [items, isReady]);
+  }, [items, isReady, appliedCode]);
 
   function updateField(name: keyof typeof initialForm, value: string) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -110,6 +123,12 @@ export function CheckoutForm() {
         body: JSON.stringify({
           customer: parsed.data,
           lines: items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })),
+          /*
+           * Yalnızca sunucunun KABUL ETTİĞİ kod gönderiliyor. Kutuda duran
+           * geçersiz bir kod da gönderilseydi sunucu siparişi reddeder ve
+           * müşteri yanlış yazdığı kod yüzünden ödeme yapamazdı.
+           */
+          couponCode: priced?.couponCode ?? undefined,
         }),
       });
 
@@ -152,13 +171,32 @@ export function CheckoutForm() {
     );
   }
 
+  /*
+   * Özet kartı hem mobilde hem masaüstünde çiziliyor; kupon alanının durumu
+   * ikisinde de aynı olsun diye tek yerden veriliyor.
+   */
+  const couponProps = {
+    couponInput,
+    isCouponOpen,
+    onCouponInputChange: setCouponInput,
+    onCouponOpen: () => setCouponOpen(true),
+    onCouponApply: () => setAppliedCode(couponInput.trim() || null),
+    onCouponRemove: () => {
+      setCouponInput("");
+      setAppliedCode(null);
+      // Kutu da kapanıyor: kupon kaldırıldıktan sonra ekran, hiç açılmamış
+      // hâline dönsün — boş bir kutu açık kalırsa "bir şey eksik" hissi verir.
+      setCouponOpen(false);
+    },
+  };
+
   return (
     <div className="container-page py-8 md:py-12">
       <h1 className="display text-3xl md:text-4xl">Ödeme</h1>
 
       {/* Mobilde özet formun üstünde — kullanıcı ne ödeyeceğini baştan görsün */}
       <div className="mt-6 lg:hidden">
-        <OrderSummary priced={priced} compact />
+        <OrderSummary priced={priced} compact {...couponProps} />
       </div>
 
       <div className="mt-6 grid gap-10 lg:mt-8 lg:grid-cols-[1fr_380px] lg:gap-14">
@@ -354,7 +392,7 @@ export function CheckoutForm() {
         </form>
 
         <aside className="hidden lg:sticky lg:top-24 lg:block lg:self-start">
-          <OrderSummary priced={priced} />
+          <OrderSummary priced={priced} {...couponProps} />
         </aside>
       </div>
     </div>
@@ -407,7 +445,20 @@ function Field({
   );
 }
 
-function OrderSummary({ priced, compact = false }: { priced: PricedCart | null; compact?: boolean }) {
+type CouponControls = {
+  couponInput: string;
+  isCouponOpen: boolean;
+  onCouponInputChange: (value: string) => void;
+  onCouponOpen: () => void;
+  onCouponApply: () => void;
+  onCouponRemove: () => void;
+};
+
+function OrderSummary({
+  priced,
+  compact = false,
+  ...coupon
+}: { priced: PricedCart | null; compact?: boolean } & CouponControls) {
   if (!priced) {
     return (
       <div className="card p-5">
@@ -448,6 +499,15 @@ function OrderSummary({ priced, compact = false }: { priced: PricedCart | null; 
           </dt>
           <dd className="tabular-nums">{formatPrice(priced.subtotal)}</dd>
         </div>
+
+        {/* İndirim satırı yalnızca gerçekten indirim varken çiziliyor */}
+        {priced.discount > 0 && (
+          <div className="flex justify-between text-success">
+            <dt>İndirim{priced.couponCode ? ` (${priced.couponCode})` : ""}</dt>
+            <dd className="tabular-nums">−{formatPrice(priced.discount)}</dd>
+          </div>
+        )}
+
         <div className="flex justify-between">
           <dt className="text-ink-muted">Kargo</dt>
           <dd className="tabular-nums">
@@ -463,6 +523,109 @@ function OrderSummary({ priced, compact = false }: { priced: PricedCart | null; 
           <dd className="tabular-nums">{formatPrice(priced.total)}</dd>
         </div>
       </dl>
+
+      <CouponField priced={priced} compact={compact} {...coupon} />
+    </div>
+  );
+}
+
+/*
+ * Kupon alanı KAPALI başlıyor, sadece "İndirim kodum var" bağlantısı görünüyor.
+ *
+ * Sebebi: ödeme sayfasında açıkta duran boş bir kupon kutusu, kodu olmayan
+ * müşteriye "demek ki bir indirim var, ben mi kaçırıyorum" dedirtir; insanlar
+ * ödemeyi bırakıp kod aramaya gider ve çoğu geri dönmez. Kodu olan zaten
+ * bağlantıyı arar ve bulur.
+ */
+function CouponField({
+  priced,
+  compact,
+  couponInput,
+  isCouponOpen,
+  onCouponInputChange,
+  onCouponOpen,
+  onCouponApply,
+  onCouponRemove,
+}: { priced: PricedCart; compact: boolean } & CouponControls) {
+  // Özet iki kez çiziliyor (mobil + masaüstü); id'ler çakışmasın.
+  const inputId = compact ? "kupon-mobil" : "kupon";
+
+  if (priced.couponCode) {
+    return (
+      <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-success/8 px-4 py-3">
+        <p className="min-w-0 text-sm">
+          <span className="font-medium">{priced.couponCode}</span>{" "}
+          <span className="text-ink-muted">uygulandı</span>
+        </p>
+        <button
+          type="button"
+          onClick={onCouponRemove}
+          className="link-quiet shrink-0 text-sm text-ink-muted"
+        >
+          Kaldır
+        </button>
+      </div>
+    );
+  }
+
+  if (!isCouponOpen) {
+    return (
+      <button
+        type="button"
+        onClick={onCouponOpen}
+        className="link-quiet mt-4 text-sm text-ink-muted"
+      >
+        İndirim kodum var
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-4">
+      <label htmlFor={inputId} className="block text-sm font-medium">
+        İndirim kodu
+      </label>
+      <div className="mt-1.5 flex gap-2">
+        <input
+          id={inputId}
+          name={inputId}
+          value={couponInput}
+          onChange={(event) => onCouponInputChange(event.target.value)}
+          onKeyDown={(event) => {
+            /*
+             * Enter tuşu kuponu uygular, formu göndermez. Bu alan ödeme
+             * formunun DIŞINDA olduğu için sipariş verilmez ama yine de
+             * açıkça engelleniyor: kutu bir gün formun içine taşınabilir.
+             */
+            if (event.key === "Enter") {
+              event.preventDefault();
+              onCouponApply();
+            }
+          }}
+          maxLength={24}
+          spellCheck={false}
+          autoComplete="off"
+          placeholder="Kodu yazın"
+          aria-invalid={Boolean(priced.couponError)}
+          aria-describedby={priced.couponError ? `${inputId}-error` : undefined}
+          className={`field mt-0 min-w-0 flex-1 font-mono uppercase ${
+            priced.couponError ? "field-error" : ""
+          }`}
+        />
+        <button
+          type="button"
+          onClick={onCouponApply}
+          disabled={couponInput.trim().length === 0}
+          className="btn-secondary shrink-0"
+        >
+          Uygula
+        </button>
+      </div>
+      {priced.couponError && (
+        <p id={`${inputId}-error`} role="alert" className="mt-1.5 text-xs text-danger">
+          {priced.couponError}
+        </p>
+      )}
     </div>
   );
 }

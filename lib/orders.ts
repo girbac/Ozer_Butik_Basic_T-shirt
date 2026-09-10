@@ -41,6 +41,8 @@ export async function createPendingOrder(
       postalCode: customer.postalCode || null,
       note: customer.note || null,
       subtotal: cart.subtotal,
+      discount: cart.discount,
+      couponCode: cart.couponCode,
       shippingFee: cart.shippingFee,
       total: cart.total,
       items: {
@@ -85,6 +87,34 @@ export async function captureOrder(
 
     if (claimed.count === 0) {
       return { outcome: "zaten-islenmis" as const };
+    }
+
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      select: { couponCode: true },
+    });
+
+    /*
+     * Kupon hakkı ödeme kesinleştiğinde yakılıyor, sipariş oluşturulurken değil:
+     * ödeme sayfasında kupon yazıp vazgeçen biri kimsenin hakkını yakmamalı.
+     *
+     * Koşullu güncelleme, aynı anda gelen iki siparişin sınırı aşmasını
+     * engelliyor. Sayaç artırılamazsa ödeme yine de geçerli: müşteri parayı
+     * ödemiş, siparişi iptal edecek değiliz — durum yalnızca log'a yazılıyor.
+     */
+    if (order?.couponCode) {
+      const consumed = await tx.coupon.updateMany({
+        where: {
+          code: order.couponCode,
+          OR: [{ maxUses: null }, { usedCount: { lt: tx.coupon.fields.maxUses } }],
+        },
+        data: { usedCount: { increment: 1 } },
+      });
+      if (consumed.count === 0) {
+        console.warn(
+          `[siparis] ${orderId}: ${order.couponCode} kuponunun sayacı artırılamadı (sınır dolmuş olabilir).`,
+        );
+      }
     }
 
     const items = await tx.orderItem.findMany({ where: { orderId } });

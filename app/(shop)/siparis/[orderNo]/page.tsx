@@ -105,6 +105,12 @@ export default async function OrderResultPage(props: PageProps<"/siparis/[orderN
               <dt className="text-ink-muted">Ara toplam</dt>
               <dd className="tabular-nums">{formatPrice(order.subtotal)}</dd>
             </div>
+            {order.discount > 0 && (
+              <div className="flex justify-between gap-4 px-5 py-3 text-success">
+                <dt>İndirim{order.couponCode ? ` (${order.couponCode})` : ""}</dt>
+                <dd className="tabular-nums">−{formatPrice(order.discount)}</dd>
+              </div>
+            )}
             <div className="flex justify-between gap-4 px-5 py-3">
               <dt className="text-ink-muted">Kargo</dt>
               <dd className="tabular-nums">

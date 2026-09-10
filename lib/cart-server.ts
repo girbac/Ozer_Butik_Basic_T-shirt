@@ -4,6 +4,7 @@ import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 import { getDemoProducts } from "@/lib/demo-catalog";
 import { calculateShipping, getSettings, type StoreSettings } from "@/lib/settings";
 import { MAX_QUANTITY_PER_ITEM } from "@/lib/cart-store";
+import { applyCoupon } from "@/lib/coupons";
 
 /*
  * Sepetin sunucu tarafındaki tek doğru kaynağı.
@@ -44,10 +45,35 @@ export type PricedCart = {
   lines: PricedLine[];
   issues: CartIssue[];
   subtotal: number;
+  /** Uygulanan indirim, kuruş. Kupon yoksa 0. */
+  discount: number;
+  /** Geçerli kuponun kodu; yoksa null. */
+  couponCode: string | null;
+  /** Kupon reddedildiyse sebebi; kabul edildiyse veya hiç girilmediyse null. */
+  couponError: string | null;
   shippingFee: number;
   total: number;
   settings: StoreSettings;
 };
+
+/*
+ * Ücretsiz kargo eşiği İNDİRİMDEN ÖNCEKİ ara toplama bakıyor.
+ *
+ * Tersi de yapılabilirdi ama kötü bir sürprize yol açıyor: 520 TL'lik sepete
+ * %10 kupon giren müşterinin tutarı 468 TL'ye düşer, eşiğin altına iner ve
+ * ekranda birden 49 TL kargo belirir — 52 TL indirim alıp 49 TL kargo ödemek
+ * müşteriye oyun oynanmış hissi verir ve destek yükü doğurur.
+ *
+ * Müşterinin sepete koyduğu tutar eşiği geçtiyse kargo bedava kalır.
+ */
+function computeTotals(
+  subtotal: number,
+  discount: number,
+  settings: StoreSettings,
+): { shippingFee: number; total: number } {
+  const shippingFee = calculateShipping(subtotal, settings);
+  return { shippingFee, total: subtotal - discount + shippingFee };
+}
 
 /**
  * Sepeti veritabanına göre yeniden fiyatlandırır ve stok sınırlarına oturtur.
@@ -56,7 +82,10 @@ export type PricedCart = {
  * çekilir; fiyat değişmişse güncel fiyat kullanılır. Her düzeltme `issues`
  * içinde raporlanır ki kullanıcı sessizce farklı bir sipariş vermesin.
  */
-export async function priceCart(input: CartLineInput[]): Promise<PricedCart> {
+export async function priceCart(
+  input: CartLineInput[],
+  couponCode?: string | null,
+): Promise<PricedCart> {
   const settings = await getSettings();
 
   // Aynı varyant birden fazla kez gönderilmişse tek satırda topla.
@@ -68,7 +97,17 @@ export async function priceCart(input: CartLineInput[]): Promise<PricedCart> {
   }
 
   if (requested.size === 0) {
-    return { lines: [], issues: [], subtotal: 0, shippingFee: 0, total: 0, settings };
+    return {
+      lines: [],
+      issues: [],
+      subtotal: 0,
+      discount: 0,
+      couponCode: null,
+      couponError: null,
+      shippingFee: 0,
+      total: 0,
+      settings,
+    };
   }
 
   // Demo modunda veritabanı yok; sepet tanıtım kataloğuna göre fiyatlandırılır.
@@ -147,14 +186,36 @@ export async function priceCart(input: CartLineInput[]): Promise<PricedCart> {
   }
 
   const subtotal = lines.reduce((sum, line) => sum + line.lineTotal, 0);
-  const shippingFee = calculateShipping(subtotal, settings);
+
+  /*
+   * Kupon burada, sepet KESİNLEŞTİKTEN sonra doğrulanıyor. Önce doğrulansaydı
+   * stok yüzünden küçülen bir sepette indirim gerçek tutardan fazla çıkardı.
+   */
+  let discount = 0;
+  let appliedCode: string | null = null;
+  let couponError: string | null = null;
+
+  if (couponCode) {
+    const result = await applyCoupon(couponCode, subtotal);
+    if (result.ok) {
+      discount = result.coupon.discount;
+      appliedCode = result.coupon.code;
+    } else {
+      couponError = result.reason;
+    }
+  }
+
+  const { shippingFee, total } = computeTotals(subtotal, discount, settings);
 
   return {
     lines,
     issues,
     subtotal,
+    discount,
+    couponCode: appliedCode,
+    couponError,
     shippingFee,
-    total: subtotal + shippingFee,
+    total,
     settings,
   };
 }
@@ -190,7 +251,18 @@ function priceFromDemoCatalog(
   }
 
   const subtotal = lines.reduce((sum, line) => sum + line.lineTotal, 0);
-  const shippingFee = calculateShipping(subtotal, settings);
+  const { shippingFee, total } = computeTotals(subtotal, 0, settings);
 
-  return { lines, issues: [], subtotal, shippingFee, total: subtotal + shippingFee, settings };
+  // Demo modunda kupon yok: kuponlar veritabanında tutuluyor, o da bağlı değil.
+  return {
+    lines,
+    issues: [],
+    subtotal,
+    discount: 0,
+    couponCode: null,
+    couponError: null,
+    shippingFee,
+    total,
+    settings,
+  };
 }

@@ -55,10 +55,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const { customer, lines } = parsed.data;
+  const { customer, lines, couponCode } = parsed.data;
 
   // Sepeti sunucuda yeniden fiyatlandır — tek doğru kaynak burası.
-  const cart = await priceCart(lines);
+  // Kupon da burada yeniden doğrulanıyor; ödeme sayfasındaki hesaba güvenilmez.
+  const cart = await priceCart(lines, couponCode || null);
 
   if (cart.lines.length === 0) {
     return NextResponse.json(
@@ -74,6 +75,18 @@ export async function POST(request: Request) {
         error: "Sepetinizde değişiklik oldu, lütfen kontrol edip tekrar deneyin.",
         issues: cart.issues.map((issue) => issue.message),
       },
+      { status: 409 },
+    );
+  }
+
+  /*
+   * Kupon ödeme sayfasında geçerliydi ama şimdi değilse (süresi doldu, hak
+   * bitti, sepet küçüldü) müşteriyi ödemeye göndermiyoruz: yazdığından farklı
+   * bir tutar ödemesi güven kırıcı olurdu.
+   */
+  if (cart.couponError) {
+    return NextResponse.json(
+      { error: `Kupon uygulanamadı: ${cart.couponError}` },
       { status: 409 },
     );
   }

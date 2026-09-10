@@ -74,6 +74,13 @@ model Order {
   postalCode      String?
   note            String?
   subtotal        Int
+  /*
+   * İndirim tutarı ve uygulanan kuponun kodu. Kod bilerek metin olarak
+   * kopyalanıyor (ilişki değil): kupon sonradan silinse bile eski siparişin
+   * hangi kodla indirim aldığı okunabilmeli.
+   */
+  discount        Int         @default(0)
+  couponCode      String?
   shippingFee     Int
   total           Int
   iyzicoToken     String?
@@ -123,4 +130,34 @@ enum OrderStatus {
   DELIVERED
   CANCELLED
   REFUNDED
+}
+
+/// İndirim kuponu. Kod büyük harfle saklanır, karşılaştırma da öyle yapılır.
+model Coupon {
+  id           String       @id @default(cuid())
+  code         String       @unique
+  kind         CouponKind
+  /// kind PERCENT ise yüzde (1-90), AMOUNT ise kuruş
+  value        Int
+  /// Bu tutarın altındaki sepetlerde geçerli değil (kuruş). 0 = sınırsız.
+  minSubtotal  Int          @default(0)
+  /// Toplam kaç siparişte kullanılabilir. null = sınırsız.
+  maxUses      Int?
+  /// Kaç siparişte kullanıldı. Yalnızca ödeme kesinleşince artar.
+  usedCount    Int          @default(0)
+  active       Boolean      @default(true)
+  /// Geçerlilik aralığı; null = sınırsız.
+  startsAt     DateTime?
+  expiresAt    DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([active])
+}
+
+enum CouponKind {
+  /// Sepetin yüzdesi kadar indirim
+  PERCENT
+  /// Sabit tutar indirimi (kuruş)
+  AMOUNT
 }

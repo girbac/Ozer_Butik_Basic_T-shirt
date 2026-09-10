@@ -39,22 +39,6 @@ export function SettingsForm({ settings }: { settings: StoreSettings }) {
         </p>
       </div>
 
-      <div className="mt-4">
-        <label htmlFor="announcement" className="block text-sm font-medium">
-          Duyuru şeridi metni
-        </label>
-        <input
-          id="announcement"
-          name="announcement"
-          maxLength={120}
-          defaultValue={settings.announcement}
-          className="field mt-1.5"
-        />
-        <p className="mt-1.5 text-xs text-ink-muted">
-          Sitenin en üstündeki siyah şeritte görünür. Boş bırakırsanız şerit boş kalır.
-        </p>
-      </div>
-
       {state.error && (
         <p role="alert" className="mt-4 text-sm text-danger">
           {state.error}

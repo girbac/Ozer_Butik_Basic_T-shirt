@@ -13,7 +13,7 @@ export default async function ShopLayout({ children }: LayoutProps<"/">) {
   return (
     <CartProvider>
       {!isDatabaseConfigured() && <DemoBanner />}
-      <Header announcement={settings.announcement} />
+      <Header />
       <main className="flex-1">{children}</main>
       <Footer />
       <CartDrawer freeShippingThreshold={settings.freeShippingThreshold} />

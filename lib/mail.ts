@@ -21,6 +21,8 @@ type OrderEmailData = {
   address: string;
   note: string | null;
   subtotal: number;
+  discount: number;
+  couponCode: string | null;
   shippingFee: number;
   total: number;
   createdAt: Date;
@@ -70,6 +72,16 @@ function summaryRows(order: OrderEmailData): string {
       <td style="padding:6px 0;font-size:14px;color:#6b6b6b;">Ara toplam</td>
       <td style="padding:6px 0;text-align:right;font-size:14px;">${formatPrice(order.subtotal)}</td>
     </tr>
+    ${
+      order.discount > 0
+        ? `<tr>
+      <td style="padding:6px 0;font-size:14px;color:#1e7a45;">İndirim${
+        order.couponCode ? ` (${escapeHtml(order.couponCode)})` : ""
+      }</td>
+      <td style="padding:6px 0;text-align:right;font-size:14px;color:#1e7a45;">−${formatPrice(order.discount)}</td>
+    </tr>`
+        : ""
+    }
     <tr>
       <td style="padding:6px 0;font-size:14px;color:#6b6b6b;">Kargo</td>
       <td style="padding:6px 0;text-align:right;font-size:14px;">

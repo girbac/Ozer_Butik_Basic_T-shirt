@@ -15,6 +15,7 @@ import { isImageUploadAvailable, removeImage, storeImage } from "@/lib/image-sto
 import { buildSku, SIZES } from "@/lib/catalog-data";
 import { sortSizes } from "@/lib/sizes";
 import { toSlug, uniqueSlug } from "@/lib/slug";
+import { isValidCouponCode, MAX_PERCENT, normalizeCouponCode } from "@/lib/coupon-math";
 
 /*
  * Yönetim paneli işlemleri.
@@ -190,22 +191,15 @@ export async function updateSettingsAction(
   const thresholdLira = Number(
     String(formData.get("freeShippingThreshold") ?? "").replace(",", "."),
   );
-  const announcement = String(formData.get("announcement") ?? "").trim();
-
   if (!Number.isFinite(shippingFeeLira) || shippingFeeLira < 0) {
     return { error: "Kargo ücreti 0 veya daha büyük olmalı." };
   }
   if (!Number.isFinite(thresholdLira) || thresholdLira < 0) {
     return { error: "Ücretsiz kargo eşiği 0 veya daha büyük olmalı." };
   }
-  if (announcement.length > 120) {
-    return { error: "Duyuru metni en fazla 120 karakter olabilir." };
-  }
-
   const values: Record<string, string> = {
     shippingFee: String(Math.round(shippingFeeLira * 100)),
     freeShippingThreshold: String(Math.round(thresholdLira * 100)),
-    announcement,
   };
 
   for (const [key, value] of Object.entries(values)) {
@@ -664,4 +658,136 @@ export async function createProductAction(
       `"${name}" oluşturuldu — henüz YAYINDA DEĞİL. ` +
       `Fotoğraf, açıklama ve stok girdikten sonra "Mağazada yayında" kutusunu işaretleyin.`,
   };
+}
+
+/*
+ * ————— İndirim kuponları —————
+ *
+ * Kod her yerde BÜYÜK HARF saklanıyor ve öyle karşılaştırılıyor; müşterinin
+ * küçük harfle yazması sorun olmuyor (bkz. lib/coupon-math.ts).
+ */
+
+/** Yeni kupon oluşturur. */
+export async function createCouponAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const code = normalizeCouponCode(String(formData.get("code") ?? ""));
+  const kind = String(formData.get("kind") ?? "");
+  const valueRaw = String(formData.get("value") ?? "").replace(",", ".");
+  const minSubtotalRaw = String(formData.get("minSubtotal") ?? "").replace(",", ".");
+  const maxUsesRaw = String(formData.get("maxUses") ?? "").trim();
+  const expiresAtRaw = String(formData.get("expiresAt") ?? "").trim();
+
+  if (!isValidCouponCode(code)) {
+    return {
+      error: "Kupon kodu 3-24 karakter olmalı ve yalnızca harf ile rakam içermeli.",
+    };
+  }
+  if (kind !== "PERCENT" && kind !== "AMOUNT") {
+    return { error: "İndirim türünü seçin." };
+  }
+
+  const value = Number(valueRaw);
+  if (!Number.isFinite(value) || value <= 0) {
+    return { error: "İndirim miktarı sıfırdan büyük olmalı." };
+  }
+  if (kind === "PERCENT" && (!Number.isInteger(value) || value > MAX_PERCENT)) {
+    return { error: `Yüzde indirimi 1 ile ${MAX_PERCENT} arasında tam sayı olmalı.` };
+  }
+
+  const minSubtotal = minSubtotalRaw ? Number(minSubtotalRaw) : 0;
+  if (!Number.isFinite(minSubtotal) || minSubtotal < 0) {
+    return { error: "Alt limit 0 veya daha büyük olmalı." };
+  }
+
+  const maxUses = maxUsesRaw ? Number(maxUsesRaw) : null;
+  if (maxUses !== null && (!Number.isInteger(maxUses) || maxUses < 1)) {
+    return { error: "Kullanım sınırı 1 veya daha büyük bir tam sayı olmalı." };
+  }
+
+  /*
+   * Tarih alanı gün hassasiyetinde (<input type="date">). Girilen günün SONUNA
+   * kadar geçerli olsun diye 23:59:59'a çekiliyor: "31 Aralık'a kadar" diyen
+   * biri 31 Aralık günü kuponun çalışmasını bekler.
+   */
+  let expiresAt: Date | null = null;
+  if (expiresAtRaw) {
+    const parsed = new Date(`${expiresAtRaw}T23:59:59`);
+    if (Number.isNaN(parsed.getTime())) {
+      return { error: "Son kullanma tarihi geçersiz." };
+    }
+    expiresAt = parsed;
+  }
+
+  const existing = await prisma.coupon.findUnique({ where: { code }, select: { id: true } });
+  if (existing) {
+    return { error: `"${code}" kodu zaten kullanılıyor.` };
+  }
+
+  await prisma.coupon.create({
+    data: {
+      code,
+      kind,
+      // Yüzde olduğu gibi, tutar kuruşa çevrilerek saklanıyor.
+      value: kind === "PERCENT" ? Math.round(value) : Math.round(value * 100),
+      minSubtotal: Math.round(minSubtotal * 100),
+      maxUses,
+      expiresAt,
+    },
+  });
+
+  revalidatePath("/admin/kuponlar");
+  return { success: `"${code}" oluşturuldu.` };
+}
+
+/** Kuponu yayından kaldırır veya geri açar. */
+export async function toggleCouponAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const id = String(formData.get("id") ?? "");
+  const coupon = await prisma.coupon.findUnique({ where: { id } });
+  if (!coupon) return { error: "Kupon bulunamadı." };
+
+  await prisma.coupon.update({ where: { id }, data: { active: !coupon.active } });
+
+  revalidatePath("/admin/kuponlar");
+  return {
+    success: coupon.active
+      ? `"${coupon.code}" kapatıldı.`
+      : `"${coupon.code}" tekrar açıldı.`,
+  };
+}
+
+/** Kuponu tamamen siler. */
+export async function deleteCouponAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const id = String(formData.get("id") ?? "");
+  const coupon = await prisma.coupon.findUnique({ where: { id } });
+  if (!coupon) return { error: "Kupon bulunamadı." };
+
+  /*
+   * Kullanılmış kupon silinmiyor. Siparişlerde kodu METİN olarak duruyor, yani
+   * geçmiş bozulmaz; ama "hangi kampanya ne getirdi" sorusunun cevabı kaybolur.
+   * Satıştan kaldırmak isteyen kişinin aradığı şey kapatmak, silmek değil.
+   */
+  if (coupon.usedCount > 0) {
+    return {
+      error: `"${coupon.code}" ${coupon.usedCount} siparişte kullanılmış, silinemez. Bunun yerine kapatın.`,
+    };
+  }
+
+  await prisma.coupon.delete({ where: { id } });
+
+  revalidatePath("/admin/kuponlar");
+  return { success: `"${coupon.code}" silindi.` };
 }

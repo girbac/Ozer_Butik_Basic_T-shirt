@@ -55,6 +55,12 @@ export const cartLineSchema = z.object({
 export const checkoutRequestSchema = z.object({
   customer: checkoutSchema,
   lines: z.array(cartLineSchema).min(1, "Sepetiniz boş.").max(50),
+  /*
+   * Kupon kodu isteğe bağlı. Buradaki tek iş uzunluk sınırı; kodun geçerli
+   * olup olmadığına sunucu karar veriyor (bkz. lib/coupons.ts). İstemciden
+   * gelen indirim TUTARI hiç alınmıyor — olsaydı tarayıcıdan değiştirilebilirdi.
+   */
+  couponCode: z.string().trim().max(24).optional().or(z.literal("")),
 });
 
 /** Telefon numarasını iyzico'nun beklediği +90 biçimine çevirir. */
