@@ -13,7 +13,10 @@ export const dynamic = "force-dynamic";
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
     orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-    include: { variants: true },
+    include: {
+      variants: true,
+      images: { orderBy: { sortOrder: "asc" } },
+    },
   });
 
   return (
@@ -41,10 +44,16 @@ export default async function AdminProductsPage() {
             entry.sizes.push({ id: variant.id, size: variant.size, stock: variant.stock });
           }
 
+          const pickImages = (colorName: string | null) =>
+            product.images
+              .filter((image) => image.colorName === colorName)
+              .map(({ id, url, alt }) => ({ id, url, alt }));
+
           const colors = [...byColor.entries()].map(([name, value]) => ({
             name,
             hex: value.hex,
             sizes: sortSizes(value.sizes),
+            images: pickImages(name),
           }));
 
           return (
@@ -63,6 +72,7 @@ export default async function AdminProductsPage() {
                 active: product.active,
               }}
               colors={colors}
+              sharedImages={pickImages(null)}
             />
           );
         })}

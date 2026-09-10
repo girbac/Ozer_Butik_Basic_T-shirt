@@ -3,11 +3,13 @@
 import { useActionState, useState } from "react";
 import { deleteColorAction, updateColorAction } from "@/app/admin/actions";
 import { StockInput } from "@/components/admin/StockInput";
+import { ImageManager, type ManagedImage } from "@/components/admin/ImageManager";
 
 type ColorData = {
   name: string;
   hex: string;
   sizes: { id: string; size: string; stock: number }[];
+  images: ManagedImage[];
 };
 
 /*
@@ -102,7 +104,16 @@ export function ColorEditor({
         </p>
       )}
 
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+      <p className="label mt-5">Bu rengin fotoğrafları</p>
+      <p className="mt-1 text-xs leading-relaxed text-ink-muted">
+        İlk kare hem vitrinde hem ürün sayfasında kapak olarak kullanılır.
+      </p>
+      <div className="mt-2">
+        <ImageManager productId={productId} colorName={color.name} images={color.images} />
+      </div>
+
+      <p className="label mt-5">Stok</p>
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
         {color.sizes.map((size) => (
           <StockInput
             key={size.id}

@@ -11,6 +11,7 @@ import {
 } from "@/lib/auth";
 import { sendShippingNotification } from "@/lib/mail";
 import { prisma } from "@/lib/prisma";
+import { isImageUploadAvailable, removeImage, storeImage } from "@/lib/image-store";
 
 /*
  * Yönetim paneli işlemleri.
@@ -328,13 +329,167 @@ export async function deleteColorAction(
     };
   }
 
+  // Depodaki dosyaları da temizlemek için adreslerini önce okuyoruz.
+  const images = await prisma.productImage.findMany({
+    where: { productId, colorName: currentName },
+    select: { url: true },
+  });
+
   await prisma.$transaction([
     prisma.productImage.deleteMany({ where: { productId, colorName: currentName } }),
     prisma.variant.deleteMany({ where: { productId, colorName: currentName } }),
   ]);
 
+  // Kayıtlar gittikten sonra dosyalar; bu adım başarısız olsa bile silme tamam.
+  for (const image of images) {
+    await removeImage(image.url);
+  }
+
   revalidatePath("/admin/urunler");
   revalidatePath("/");
   revalidatePath("/urun/[slug]", "page");
   return { success: `"${currentName}" silindi.` };
+}
+
+/*
+ * ————— Ürün fotoğrafları —————
+ *
+ * Fotoğraf renge ADIYLA bağlanıyor (ProductImage.colorName). colorName boşsa
+ * fotoğraf o ürünün TÜM renklerinde görünüyor — kumaş yakın çekimi gibi renkten
+ * bağımsız kareler için.
+ *
+ * Sıralama ürün sayfasındaki gösterim sırası; ilk sıradaki kare aynı zamanda
+ * vitrin kartında görünen karedir. Bu yüzden "kapak yap" ayrı bir işlem olarak
+ * duruyor: en sık istenen düzenleme bu.
+ */
+
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+const MAX_IMAGES_PER_UPLOAD = 10;
+
+/** Yeni fotoğraf(lar) yükler ve bir renge bağlar. */
+export async function uploadImagesAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const productId = String(formData.get("productId") ?? "");
+  // Boş dize "tüm renkler" demek; veritabanında null olarak saklanıyor.
+  const colorNameRaw = String(formData.get("colorName") ?? "").trim();
+  const colorName = colorNameRaw || null;
+
+  if (!isImageUploadAvailable()) {
+    return {
+      error:
+        "Fotoğraf yüklenemiyor: depolama bağlı değil. " +
+        "Vercel → Storage → Blob oluşturup projeye bağlayın, sonra Redeploy yapın.",
+    };
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { slug: true, name: true },
+  });
+  if (!product) return { error: "Ürün bulunamadı." };
+
+  const files = formData
+    .getAll("files")
+    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+
+  if (files.length === 0) return { error: "Önce bir fotoğraf seçin." };
+  if (files.length > MAX_IMAGES_PER_UPLOAD) {
+    return { error: `Tek seferde en fazla ${MAX_IMAGES_PER_UPLOAD} fotoğraf yükleyebilirsiniz.` };
+  }
+
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) {
+      return { error: `"${file.name}" bir fotoğraf değil.` };
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      return { error: `"${file.name}" çok büyük. Fotoğraf başına en fazla 8 MB.` };
+    }
+  }
+
+  // Yeni kareler mevcutların ARDINA ekleniyor: yükleme yapmak kapak fotoğrafını
+  // değiştirmemeli, o ayrı ve bilinçli bir işlem olmalı.
+  const last = await prisma.productImage.findFirst({
+    where: { productId, colorName },
+    orderBy: { sortOrder: "desc" },
+    select: { sortOrder: true },
+  });
+  let sortOrder = (last?.sortOrder ?? -1) + 1;
+
+  const alt = colorName ? `${product.name} — ${colorName}` : product.name;
+
+  for (const file of files) {
+    const url = await storeImage(file, product.slug);
+    await prisma.productImage.create({
+      data: { productId, url, alt, colorName, sortOrder: sortOrder++ },
+    });
+  }
+
+  revalidateStorefront();
+  return {
+    success:
+      files.length === 1 ? "Fotoğraf yüklendi." : `${files.length} fotoğraf yüklendi.`,
+  };
+}
+
+/** Bir fotoğrafı hem kayıttan hem depodan siler. */
+export async function deleteImageAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const imageId = String(formData.get("imageId") ?? "");
+  const image = await prisma.productImage.findUnique({ where: { id: imageId } });
+  if (!image) return { error: "Fotoğraf bulunamadı." };
+
+  await prisma.productImage.delete({ where: { id: imageId } });
+  await removeImage(image.url);
+
+  revalidateStorefront();
+  return { success: "Fotoğraf silindi." };
+}
+
+/** Seçilen fotoğrafı kendi renginin ilk sırasına — yani kapağına — taşır. */
+export async function setPrimaryImageAction(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const imageId = String(formData.get("imageId") ?? "");
+  const image = await prisma.productImage.findUnique({ where: { id: imageId } });
+  if (!image) return { error: "Fotoğraf bulunamadı." };
+
+  /*
+   * Aynı rengin tüm kareleri yeniden numaralanıyor: seçilen 0, kalanlar mevcut
+   * sıralarını koruyarak 1'den devam ediyor. Yalnızca seçileni 0 yapmak
+   * yetmezdi — zaten 0 olan başka bir kare varsa sıra belirsiz kalırdı.
+   */
+  const siblings = await prisma.productImage.findMany({
+    where: { productId: image.productId, colorName: image.colorName },
+    orderBy: { sortOrder: "asc" },
+    select: { id: true },
+  });
+
+  const ordered = [imageId, ...siblings.map((s) => s.id).filter((id) => id !== imageId)];
+
+  await prisma.$transaction(
+    ordered.map((id, index) =>
+      prisma.productImage.update({ where: { id }, data: { sortOrder: index } }),
+    ),
+  );
+
+  revalidateStorefront();
+  return { success: "Kapak fotoğrafı değiştirildi." };
+}
+
+/** Vitrinin fotoğraf gösteren her yerini tazeler. */
+function revalidateStorefront(): void {
+  revalidatePath("/admin/urunler");
+  revalidatePath("/");
+  revalidatePath("/urun/[slug]", "page");
 }

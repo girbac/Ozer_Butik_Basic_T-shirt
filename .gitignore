@@ -44,3 +44,7 @@ next-env.d.ts
 
 # Örnek env dosyası paylaşılabilir (gerçek anahtar içermez)
 !.env.example
+
+# Panelden yerel geliştirmede yüklenen ürün fotoğrafları.
+# Canlıda Vercel Blob kullanılıyor; bunlar yalnızca yerel makinede oluşur.
+/public/urunler/yuklenen/

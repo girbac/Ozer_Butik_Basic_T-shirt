@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { updateProductAction } from "@/app/admin/actions";
 import { formatPrice } from "@/lib/format";
 import { ColorEditor } from "@/components/admin/ColorEditor";
+import { ImageManager, type ManagedImage } from "@/components/admin/ImageManager";
 import { ChevronDownIcon } from "@/components/Icons";
 
 type ProductData = {
@@ -24,6 +25,7 @@ type ColorData = {
   name: string;
   hex: string;
   sizes: { id: string; size: string; stock: number }[];
+  images: ManagedImage[];
 };
 
 /** Kuruş → düzenlenebilir TL metni: 49900 → "499.00" */
@@ -40,9 +42,12 @@ function toLiraInput(kurus: number | null): string {
 export function ProductEditor({
   product,
   colors,
+  sharedImages,
 }: {
   product: ProductData;
   colors: ColorData[];
+  /** Renge bağlı olmayan kareler — her rengin galerisinin sonuna eklenir. */
+  sharedImages: ManagedImage[];
 }) {
   const [isOpen, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(updateProductAction, {});
@@ -160,6 +165,15 @@ export function ProductEditor({
             {colors.map((color) => (
               <ColorEditor key={color.name} productId={product.id} color={color} />
             ))}
+          </div>
+
+          <h3 className="label mt-8">Tüm renklerde görünen fotoğraflar</h3>
+          <p className="mt-1 text-xs leading-relaxed text-ink-muted">
+            Renkten bağımsız kareler — kumaş yakın çekimi, beden ölçüsü, etiket gibi.
+            Her rengin galerisinin sonuna eklenirler.
+          </p>
+          <div className="mt-3">
+            <ImageManager productId={product.id} colorName="" images={sharedImages} />
           </div>
         </div>
       )}

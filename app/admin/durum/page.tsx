@@ -5,6 +5,7 @@ import { getAdminConfigProblem } from "@/lib/auth";
 import { diagnoseDatabaseError } from "@/lib/db-error";
 import { getDatabaseUrlSource, isDatabaseConfigured, prisma } from "@/lib/prisma";
 import { listPostgresEnvNames } from "@/lib/database-url.mjs";
+import { getImageStoreKind } from "@/lib/image-store";
 import { isSessionSecretUsable, MIN_SECRET_LENGTH } from "@/lib/session-token";
 
 /*
@@ -98,7 +99,33 @@ async function runChecks(): Promise<Check[]> {
       : "Vercel → Settings → Environment Variables'a tam olarak ADMIN_PASSWORD adıyla ekleyin.",
   });
 
-  // 4. Oturum anahtarı
+  /*
+   * 4. Fotoğraf deposu.
+   *
+   * Eksikliği mağazayı anında çökertmiyor ama panelden fotoğraf yüklenemiyor,
+   * yani gerçek ürün kareleri hiç konulamıyor. Bir tişört mağazası için bu
+   * eksik sayılır; o yüzden diğerleri gibi "tamam değil" olarak işaretleniyor
+   * ve tamamlanana kadar bu sayfa görünmeye devam ediyor.
+   *
+   * Geliştirme makinesinde depo yerel klasör olduğu için orada zaten tamam.
+   */
+  const storeKind = getImageStoreKind();
+  checks.push({
+    label: "Fotoğraf deposu",
+    ok: storeKind !== "yok",
+    detail:
+      storeKind === "blob"
+        ? "Vercel Blob bağlı — panelden fotoğraf yüklenebilir"
+        : storeKind === "yerel"
+          ? "Yerel klasör (yalnızca geliştirme makinesi)"
+          : "Bağlı değil — panelden fotoğraf yüklenemez",
+    action:
+      storeKind === "yok"
+        ? "Vercel → Storage → Blob oluşturup projeye bağlayın, sonra Redeploy yapın."
+        : undefined,
+  });
+
+  // 5. Oturum anahtarı
   const secretRaw = process.env.SESSION_SECRET?.trim() ?? "";
   const secretUsable = isSessionSecretUsable();
   checks.push({
