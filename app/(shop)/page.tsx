@@ -78,7 +78,7 @@ export default async function HomePage() {
           </span>
         </h1>
         <p className="mx-auto mt-4 max-w-md text-sm text-ink-muted md:text-base">
-          Beş model, %100 pamuk. Bedeninizi seçin, sepete atın — gerisi bizde.
+          Beş model, farklı kumaş seçenekleri. Bedeninizi seçin, sepete atın — gerisi bizde.
         </p>
       </section>
 
