@@ -11,6 +11,7 @@ const TABS = [
   { href: "/admin", label: "Siparişler" },
   { href: "/admin/urunler", label: "Ürünler" },
   { href: "/admin/kuponlar", label: "Kuponlar" },
+  { href: "/admin/ziyaretler", label: "Ziyaretler" },
   { href: "/admin/ayarlar", label: "Ayarlar" },
 ];
 

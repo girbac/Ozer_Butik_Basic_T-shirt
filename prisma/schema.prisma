@@ -161,3 +161,26 @@ enum CouponKind {
   /// Sabit tutar indirimi (kuruş)
   AMOUNT
 }
+
+/// Ziyaret ölçümü. Her kayıt "bir ziyaretçi bir sayfada şu kadar kaldı" demek.
+///
+/// KİŞİSEL VERİ TUTULMUYOR: IP, tarayıcı kimliği veya kalıcı çerez yok.
+/// visitId sekme kapanınca kaybolan rastgele bir numara — aynı kişi yarın
+/// gelirse yeni ziyaret sayılır. Bu yüzden "kaç kişi" değil "kaç ziyaret"
+/// ölçülüyor; özellikle böyle seçildi.
+model PageView {
+  id         String   @id @default(cuid())
+  /// Sayfa yolu. Değişken kısımlar sabitlenir (ör. /siparis/[no]) —
+  /// hem sipariş numarası sızmasın hem de liste şişmesin diye.
+  path       String
+  /// Oturum başına rastgele numara. Kişiye değil, ziyarete karşılık gelir.
+  visitId    String
+  /// Sayfada geçirilen süre, milisaniye. Üst sınırla kırpılır.
+  durationMs Int      @default(0)
+  /// "mobil" veya "masaustu". Tek başına kimseyi tanımlamaz.
+  device     String
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path, createdAt])
+}

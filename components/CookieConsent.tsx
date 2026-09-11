@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { Analytics } from "@vercel/analytics/next";
+import { VisitTracker } from "@/components/VisitTracker";
 import {
   getConsentServerSnapshot,
   getConsentSnapshot,
@@ -30,8 +31,16 @@ export function CookieConsent() {
 
   return (
     <>
-      {/* Ölçüm YALNIZCA açık rıza varsa yükleniyor. */}
-      {consent === "kabul" && <Analytics />}
+      {/* Ölçümün ikisi de YALNIZCA açık rıza varsa çalışıyor.
+          VisitTracker kendi veritabanımıza yazıyor (yönetim panelindeki
+          "Ziyaretler" sekmesi bunu okuyor); Analytics ise Vercel'in
+          panelindeki ülke/yönlendiren gibi ek bilgiler için. */}
+      {consent === "kabul" && (
+        <>
+          <VisitTracker />
+          <Analytics />
+        </>
+      )}
 
       {consent === null && (
         <div
