@@ -11,6 +11,9 @@ const LEGAL_LINKS = [
 
 const SHOP_LINKS = [
   { href: "/", label: "Tüm Modeller" },
+  // Takip bağlantısı listenin başına yakın: siparişini merak eden müşteri
+  // burayı arıyor ve bulamazsa bize yazıyor.
+  { href: "/siparis-takip", label: "Sipariş Takibi" },
   { href: "/hakkimizda", label: "Hakkımızda" },
   { href: "/iletisim", label: "İletişim" },
 ];
