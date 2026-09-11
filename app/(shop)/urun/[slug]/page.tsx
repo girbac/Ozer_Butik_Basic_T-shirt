@@ -26,7 +26,7 @@ export async function generateMetadata(props: PageProps<"/urun/[slug]">): Promis
     description: product.tagline ?? product.description.slice(0, 155),
     alternates: { canonical: `/urun/${product.slug}` },
     openGraph: {
-      title: `${product.name} · Özer Butik`,
+      title: `${product.name} · Ozer Butik`,
       description: product.tagline ?? product.description.slice(0, 155),
       images: image ? [image] : undefined,
     },
@@ -57,7 +57,7 @@ export default async function ProductPage(props: PageProps<"/urun/[slug]">) {
     name: product.name,
     description: product.description,
     image: product.colors.flatMap((color) => color.images.map((image) => image.url)),
-    brand: { "@type": "Brand", name: "Özer Butik" },
+    brand: { "@type": "Brand", name: "Ozer Butik" },
     offers: {
       "@type": "Offer",
       price: (product.price / 100).toFixed(2),

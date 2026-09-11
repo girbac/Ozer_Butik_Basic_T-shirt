@@ -4,7 +4,7 @@ import { STORE_INFO } from "@/lib/store-info";
 export const metadata: Metadata = {
   title: "İptal ve İade Koşulları",
   description:
-    "Özer Butik iptal, iade ve değişim koşulları. 14 gün içinde koşulsuz iade.",
+    "Ozer Butik iptal, iade ve değişim koşulları. 14 gün içinde koşulsuz iade.",
 };
 
 export default function ReturnsPage() {

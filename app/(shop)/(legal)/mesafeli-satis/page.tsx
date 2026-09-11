@@ -3,7 +3,7 @@ import { STORE_INFO } from "@/lib/store-info";
 
 export const metadata: Metadata = {
   title: "Mesafeli Satış Sözleşmesi",
-  description: "Özer Butik mesafeli satış sözleşmesi.",
+  description: "Ozer Butik mesafeli satış sözleşmesi.",
 };
 
 export default function DistanceSalesPage() {

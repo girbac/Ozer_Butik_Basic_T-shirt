@@ -1,4 +1,4 @@
-# Özer Butik — Basic T-shirt
+# Ozer Butik — Basic T-shirt
 
 Beş model basic t-shirt satan, mobil öncelikli e-ticaret sitesi.
 

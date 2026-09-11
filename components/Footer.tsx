@@ -27,7 +27,7 @@ export function Footer() {
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
             <div className="sm:col-span-2 md:col-span-1">
               <p className="display text-lg">
-                özer butik
+                Ozer Butik
                 <span aria-hidden="true" className="text-accent-wash">
                   .
                 </span>
@@ -75,7 +75,7 @@ export function Footer() {
           </div>
 
           <div className="mt-10 flex flex-col gap-3 border-t border-white/12 pt-6 text-xs text-white/65 sm:flex-row sm:items-center sm:justify-between">
-            <p>© {new Date().getFullYear()} Özer Butik. Tüm hakları saklıdır.</p>
+            <p>© {new Date().getFullYear()} Ozer Butik. Tüm hakları saklıdır.</p>
             <p>
               Ödemeler <span className="text-white">iyzico</span> güvencesiyle alınır.
             </p>

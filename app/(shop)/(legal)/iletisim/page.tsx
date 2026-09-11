@@ -3,7 +3,7 @@ import { STORE_INFO } from "@/lib/store-info";
 
 export const metadata: Metadata = {
   title: "İletişim",
-  description: "Özer Butik iletişim bilgileri.",
+  description: "Ozer Butik iletişim bilgileri.",
 };
 
 export default function ContactPage() {

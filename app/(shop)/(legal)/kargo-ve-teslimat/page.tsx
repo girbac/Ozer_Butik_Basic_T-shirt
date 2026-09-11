@@ -5,7 +5,7 @@ import { STORE_INFO } from "@/lib/store-info";
 
 export const metadata: Metadata = {
   title: "Kargo ve Teslimat",
-  description: "Özer Butik kargo ücretleri ve teslimat süreleri.",
+  description: "Ozer Butik kargo ücretleri ve teslimat süreleri.",
 };
 
 export default async function ShippingPage() {

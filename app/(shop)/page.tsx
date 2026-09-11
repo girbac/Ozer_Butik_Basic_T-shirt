@@ -140,7 +140,7 @@ export default async function HomePage() {
         <div className="media relative aspect-4/3 sm:aspect-16/9 lg:aspect-21/9">
           <Image
             src="/urunler/marka.webp"
-            alt="Özer Butik basic t-shirt koleksiyonu"
+            alt="Ozer Butik basic t-shirt koleksiyonu"
             fill
             sizes="(min-width: 1200px) 1152px, 100vw"
             className="object-cover"

@@ -20,15 +20,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "Özer Butik — Basic T-shirt",
-    template: "%s · Özer Butik",
+    default: "Ozer Butik — Basic T-shirt",
+    template: "%s · Ozer Butik",
   },
   description:
     "Beş model basic t-shirt. Farklı kumaş seçenekleri, sade kalıplar. Aynı gün kargo, 14 gün içinde iade.",
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    siteName: "Özer Butik",
+    siteName: "Ozer Butik",
     images: ["/og.webp"],
   },
 };

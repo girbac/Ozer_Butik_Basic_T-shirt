@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
       <header className="border-b border-line bg-surface">
         <div className="container-page flex h-14 items-center justify-between gap-4">
           <span className="display text-base">
-            özer butik
+            Ozer Butik
             <span className="ml-2 font-normal text-ink-muted">yönetim</span>
           </span>
 

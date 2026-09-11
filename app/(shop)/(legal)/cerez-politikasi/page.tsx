@@ -3,7 +3,7 @@ import { STORE_INFO } from "@/lib/store-info";
 
 export const metadata: Metadata = {
   title: "Çerez Politikası",
-  description: "Özer Butik'te hangi çerezlerin kullanıldığı.",
+  description: "Ozer Butik'te hangi çerezlerin kullanıldığı.",
 };
 
 export default function CookiePolicyPage() {

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Hakkımızda",
-  description: "Özer Butik neden yalnızca beş model basic t-shirt satıyor?",
+  description: "Ozer Butik neden yalnızca beş model basic t-shirt satıyor?",
 };
 
 export default function AboutPage() {
@@ -12,7 +12,7 @@ export default function AboutPage() {
       <h1>Hakkımızda</h1>
 
       <p>
-        Özer Butik, tek bir soruyla başladı: neden iyi bir basic tişört bulmak bu
+        Ozer Butik, tek bir soruyla başladı: neden iyi bir basic tişört bulmak bu
         kadar zor?
       </p>
 

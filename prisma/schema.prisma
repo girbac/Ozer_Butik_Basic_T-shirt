@@ -1,4 +1,4 @@
-// Özer Butik — veri modeli
+// Ozer Butik — veri modeli
 // Tüm para birimleri KURUŞ cinsinden Int olarak tutulur (ör. 49900 = 499,00 TL).
 // Float kullanılmaz; yuvarlama hatası olmasın diye.
 

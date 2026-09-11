@@ -13,7 +13,7 @@ export const STORE_INFO = {
   /** Ticari unvan — şahıs şirketiyse ad soyad, limitedse tam unvan */
   legalName: "[TİCARİ UNVAN GİRİLECEK]",
   /** Müşterinin gördüğü marka adı */
-  brandName: "Özer Butik",
+  brandName: "Ozer Butik",
   /** Açık adres (mahalle, cadde, no, ilçe/il) */
   address: "[AÇIK ADRES GİRİLECEK]",
   /** Vergi dairesi ve numarası; şahıs şirketinde T.C. kimlik no da olabilir */

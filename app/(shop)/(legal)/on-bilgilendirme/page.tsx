@@ -3,7 +3,7 @@ import { STORE_INFO } from "@/lib/store-info";
 
 export const metadata: Metadata = {
   title: "Ön Bilgilendirme Formu",
-  description: "Özer Butik ön bilgilendirme formu.",
+  description: "Ozer Butik ön bilgilendirme formu.",
 };
 
 export default function PreInformationPage() {
