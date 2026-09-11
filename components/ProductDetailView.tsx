@@ -205,8 +205,10 @@ export function ProductDetailView({
                           : "border-transparent hover:border-line"
                       }`}
                     >
+                      {/* Çerçeve koyu ve yarı saydam: beyaz/bej gibi açık renkler
+                          beyaz kartın üzerinde kaybolmasın (border-line çok açıktı). */}
                       <span
-                        className="block h-full w-full rounded-full border border-line"
+                        className="block h-full w-full rounded-full border border-black/20"
                         style={{ backgroundColor: option.hex }}
                       />
                     </button>

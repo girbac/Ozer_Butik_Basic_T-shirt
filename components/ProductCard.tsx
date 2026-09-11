@@ -178,8 +178,38 @@ export function ProductCard({
           </p>
         )}
 
+        {/*
+          Renk noktaları — bilinçli olarak ADSIZ.
+
+          Beş kartın her birine renk adı yazmak 15 ayrı yazı demek; dar kartta
+          satıra sığmaz, kartlar farklı yükseklikte kalır. Gerek de yok: noktaya
+          dokununca fotoğraf o renge geçiyor, yani müşteri rengi okumuyor,
+          GÖRÜYOR. Adı, sipariş kararının verildiği yerde — ürün sayfasında —
+          zaten yazılı.
+
+          Noktanın kendisi ise ayırt edilebilir olmalı. Üç şey yapıldı ve üçü de
+          DÜZENİ BÜYÜTMEDEN yapıldı — dar kartta 4 renk tek satıra sığmak zorunda,
+          yoksa o kart diğerlerinden uzun kalıp ızgarayı bozuyor:
+
+          1. Görünen daire 20px'ten 24px'e çıktı (dolgunun etrafındaki iç boşluk
+             kaldırıldı, dış ölçü aynı kaldı).
+          2. Çerçeve border-line (#ebebeb) yerine yarı saydam siyah: beyaz ve bej
+             gibi açık renkler beyaz kartın üzerinde artık kayboluyor değil.
+          3. Seçili halka box-shadow ile çiziliyor, border ile değil — böylece
+             yer kaplamıyor. Arada beyaz bir boşluk bırakıyor ki siyah rengin
+             etrafındaki siyah halka da görünsün. (outline kullanılamaz:
+             globals.css'te klavye odağı ona ayrılmış.)
+
+          Dokunma alanı ise ::after ile 32×44px'e genişletiliyor; bu da düzende
+          yer kaplamıyor ve komşu noktayla çakışmıyor (aradaki boşluk 8px,
+          genişleme her yandan 4px).
+        */}
         {product.colors.length > 1 && (
-          <div className="mt-3 flex items-center gap-1.5" role="group" aria-label="Renk seçimi">
+          <div
+            className="mt-3 flex flex-wrap items-center gap-2"
+            role="group"
+            aria-label="Renk seçimi"
+          >
             {product.colors.map((option, index) => (
               <button
                 key={option.name}
@@ -188,15 +218,13 @@ export function ProductCard({
                 aria-pressed={index === activeColorIndex}
                 aria-label={option.name}
                 title={option.name}
-                className={`h-7 w-7 rounded-full border p-[3px] transition-colors ${
-                  index === activeColorIndex ? "border-ink" : "border-transparent"
+                style={{ backgroundColor: option.hex }}
+                className={`relative h-6 w-6 rounded-full border border-black/20 transition-shadow after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-[''] ${
+                  index === activeColorIndex
+                    ? "shadow-[0_0_0_2px_var(--color-surface),0_0_0_4px_var(--color-ink)]"
+                    : ""
                 }`}
-              >
-                <span
-                  className="block h-full w-full rounded-full border border-line"
-                  style={{ backgroundColor: option.hex }}
-                />
-              </button>
+              />
             ))}
           </div>
         )}
