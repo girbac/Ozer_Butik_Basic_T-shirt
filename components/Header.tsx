@@ -25,9 +25,9 @@ export function Header() {
         <Link
           href="/"
           className="display text-lg sm:text-xl"
-          aria-label="Özer Butik ana sayfa"
+          aria-label="Ozer Butik ana sayfa"
         >
-          özer butik
+          Ozer Butik
           {/* Morun ikinci görevi: markanın kendisi. Süs değil, imza. */}
           <span aria-hidden="true" className="text-accent">
             .
